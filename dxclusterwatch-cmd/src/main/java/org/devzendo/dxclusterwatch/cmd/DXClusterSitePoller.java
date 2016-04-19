@@ -73,13 +73,17 @@ public class DXClusterSitePoller implements SitePoller {
 
 	public ClusterRecord[] poll() {
 		LOGGER.debug("Polling DXCluster...");
-		long start = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 		ClientResponse clientResponse = webResource.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-		
-		LOGGER.debug("Response: " + clientResponse);
-		ClusterRecord[] r = clientResponse.getEntity(ClusterRecord[].class);
-		long stop = System.currentTimeMillis();
-		LOGGER.debug("Retrieved {} records in {} ms", r.length, (stop - start));
-		return r;
+		if (clientResponse.getStatus() == 200) {
+			LOGGER.debug("Response: " + clientResponse);
+			final ClusterRecord[] r = clientResponse.getEntity(ClusterRecord[].class);
+			final long stop = System.currentTimeMillis();
+			LOGGER.debug("Retrieved {} records in {} ms", r.length, (stop - start));
+			return r;
+		} else {
+			LOGGER.warn("Failed to poll DXCluster: " + clientResponse);
+			return new ClusterRecord[0];
+		}
 	}
 }
