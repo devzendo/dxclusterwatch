@@ -3,7 +3,9 @@ package org.devzendo.dxclusterwatch.cmd;
 import java.io.File;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -27,9 +29,11 @@ import com.sun.jersey.core.header.InBoundHeaders;
 
 public class DXClusterSitePoller implements SitePoller {
 	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterSitePoller.class);
-	private WebResource webResource;
+	private final Set<String> callsigns;
+	private final WebResource webResource;
 
-	public DXClusterSitePoller(File prefsDir, final String serverUrl) {
+	public DXClusterSitePoller(File prefsDir, final String serverUrl, final Set<String> callsigns) {
+		this.callsigns = callsigns;
 		try {
 			KeyStore.getInstance("JKS");
 			System.setProperty("javax.net.ssl.trustStore", new File(prefsDir, "cacerts").getAbsolutePath());
@@ -78,6 +82,7 @@ public class DXClusterSitePoller implements SitePoller {
 		if (clientResponse.getStatus() == 200) {
 			LOGGER.debug("Response: " + clientResponse);
 			final ClusterRecord[] r = clientResponse.getEntity(ClusterRecord[].class);
+			final ClusterRecord[] filtered = filterCallsigns(callsigns, r);
 			final long stop = System.currentTimeMillis();
 			LOGGER.debug("Retrieved {} records in {} ms", r.length, (stop - start));
 			return r;
@@ -85,5 +90,21 @@ public class DXClusterSitePoller implements SitePoller {
 			LOGGER.warn("Failed to poll DXCluster: " + clientResponse);
 			return new ClusterRecord[0];
 		}
+	}
+
+	static ClusterRecord[] filterCallsigns(final Set<String> callsigns, final ClusterRecord[] records) {
+		if (callsigns == null || callsigns.isEmpty()) {
+			return new ClusterRecord[0];
+		}
+		
+		final ArrayList<ClusterRecord> outList = new ArrayList<>();
+		for (ClusterRecord cr : records) {
+			final String upperDXCall = cr.getDxcall().toUpperCase();
+			if (callsigns.contains(upperDXCall)) {
+				outList.add(cr);
+			}
+		}
+			
+		return outList.toArray(new ClusterRecord[0]);
 	}
 }
