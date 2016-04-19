@@ -10,13 +10,16 @@ public class DXClusterWatch {
 	private static final long DXCLUSTER_POLL_INTERVAL_SECONDS = 60 * 5; // 5 mins
 	
 	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterWatch.class);
+	private final Config config;
+	private final Persister persister;
 	private final SitePoller sitePoller;
 	
 	private boolean running = true;
 	
-	public DXClusterWatch(File prefsDir, Config config) {
+	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister) {
+		this.config = config;
+		this.persister = persister;
 		sitePoller = new DXClusterSitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all");
-		
 	}
 	
 	public void start() {
@@ -26,6 +29,7 @@ public class DXClusterWatch {
 			if (nowSeconds() >= nextPollTime) {
 				try {
 					final ClusterRecord[] records = sitePoller.poll();
+					persister.persistRecords(records);
 					backoffCount = 0;
 					nextPollTime = nowSeconds() + DXCLUSTER_POLL_INTERVAL_SECONDS;
 					LOGGER.info("Next poll in " + DXCLUSTER_POLL_INTERVAL_SECONDS + " secs");

@@ -23,7 +23,8 @@ public class Main {
 			}
 			
 			final Config config = new Config(prefsFactory.getPrefsFile());
-			new DXClusterWatch(prefsFactory.getPrefsDir(), config);
+			final H2Persister persister = new H2Persister(prefsFactory.getPrefsDir());
+			new DXClusterWatch(prefsFactory.getPrefsDir(), config, persister);
 
 		} catch (final Exception e) {
 			LOGGER.error(e.getMessage(), e);
