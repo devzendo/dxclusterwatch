@@ -43,7 +43,7 @@ public class DXClusterSitePoller implements SitePoller {
 			clientConfig.getClasses().add(JacksonJsonProvider.class);
 			
 			Client client = Client.create(clientConfig);
-			client.addFilter(new LoggingFilter(System.out));
+			//client.addFilter(new LoggingFilter(System.out));
 			
 			// DXCluster.co.uk always sends a content-type of text/html, which Jersey doesn't interpret as application/json, so bodge the response
 			// to be application/json to force JSON deserialisation.
@@ -56,11 +56,11 @@ public class DXClusterSitePoller implements SitePoller {
 					MultivaluedMap<String, String> origHeaders = response.getHeaders();
 					for (String header: origHeaders.keySet()) {
 						if (header.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
-							System.out.println("Setting the application/json content type");
+							//System.out.println("Setting the application/json content type");
 							headers.putSingle(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 						} else {
 							List<String> origHeaderValue = origHeaders.get(header);
-							System.out.println("Setting header " + header + " to " + origHeaderValue);
+							//System.out.println("Setting header " + header + " to " + origHeaderValue);
 							headers.put(header, origHeaderValue);
 						}
 					}
