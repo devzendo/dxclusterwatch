@@ -22,7 +22,7 @@ public class DXClusterWatch {
 			throw new RuntimeException(msg);
 		}
 		
-		SitePoller sitePoller = new SitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all");
+		DXClusterSitePoller sitePoller = new DXClusterSitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all");
 		final ClusterRecord[] records = sitePoller.poll();
 	}
 }

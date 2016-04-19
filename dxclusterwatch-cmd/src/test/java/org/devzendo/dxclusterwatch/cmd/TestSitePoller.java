@@ -21,7 +21,7 @@ public class TestSitePoller {
 	@Test
 	@Ignore
 	public void test() {
-		final SitePoller sp = new SitePoller(new File("src/test/resources"), mainServerUrl);
+		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl);
 		final ClusterRecord[] records = sp.poll();
 		System.out.println("Read " + records.length + " records");
 		for (ClusterRecord clusterRecord : records) {

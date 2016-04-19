@@ -25,11 +25,11 @@ import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-public class SitePoller {
-	private static Logger LOGGER = LoggerFactory.getLogger(SitePoller.class);
+public class DXClusterSitePoller {
+	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterSitePoller.class);
 	private WebResource webResource;
 
-	public SitePoller(File prefsDir, final String serverUrl) {
+	public DXClusterSitePoller(File prefsDir, final String serverUrl) {
 		try {
 			KeyStore.getInstance("JKS");
 			System.setProperty("javax.net.ssl.trustStore", new File(prefsDir, "cacerts").getAbsolutePath());
