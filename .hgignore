@@ -1,0 +1,14 @@
+syntax: glob
+.DS_Store
+*.iml
+.idea
+.classpath
+.project
+.settings
+*.o
+target
+syntax: regexp
+^bin$
+^build$
+^dist$
+
