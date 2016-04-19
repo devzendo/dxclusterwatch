@@ -1,6 +1,7 @@
 package org.devzendo.dxclusterwatch.cmd;
 
 import java.io.File;
+import java.util.Set;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.slf4j.Logger;
@@ -25,7 +26,11 @@ public class DXClusterWatch {
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
-		sitePoller = new DXClusterSitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all", config.getCallsigns());
+		final Set<String> callsigns = config.getCallsigns();
+		if (callsigns.isEmpty()) {
+			throw new IllegalStateException("No callsigns configured");
+		}
+		sitePoller = new DXClusterSitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all", callsigns);
 	}
 	
 	public void start() {
@@ -45,10 +50,12 @@ public class DXClusterWatch {
 						LOGGER.info("Next poll in " + DXCLUSTER_POLL_INTERVAL_SECONDS + " secs");
 
 						LOGGER.debug("Persisting " + records.length + " records");
-						persister.persistRecords(records);
-						LOGGER.info("Rebuilding page #" + pageRebuildNumber);
-						pageRebuildNumber++;
-						pageBuilder.rebuildPage();
+						final boolean newRecords = persister.persistRecords(records);
+						if (newRecords) {
+							LOGGER.info("Rebuilding page #" + pageRebuildNumber);
+							pageRebuildNumber++;
+							pageBuilder.rebuildPage();
+						}
 					}					
 				} catch (final RuntimeException re) {
 					backoffCount ++;

@@ -14,9 +14,9 @@ public class H2Persister implements Persister {
 	}
 
 	@Override
-	public void persistRecords(ClusterRecord[] records) {
+	public boolean persistRecords(ClusterRecord[] records) {
 		// TODO Auto-generated method stub
-		
+		return false;
 	}
 
 	@Override
