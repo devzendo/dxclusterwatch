@@ -25,7 +25,7 @@ import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-public class DXClusterSitePoller {
+public class DXClusterSitePoller implements SitePoller {
 	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterSitePoller.class);
 	private WebResource webResource;
 
