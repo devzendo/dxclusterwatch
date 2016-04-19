@@ -11,7 +11,6 @@ public class DXClusterWatch {
 	private static final long DXCLUSTER_POLL_INTERVAL_SECONDS = 60 * 5; // 5 mins
 	private static final Logger LOGGER = LoggerFactory.getLogger(DXClusterWatch.class);
 	
-	private final Config config;
 	private final Persister persister;
 	private final PageBuilder pageBuilder;
 	private final Tweeter tweeter;
@@ -19,10 +18,7 @@ public class DXClusterWatch {
 	
 	private boolean running = true;
 
-
-	
 	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
-		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
@@ -88,5 +84,4 @@ public class DXClusterWatch {
 	private long nowSeconds() {
 		return System.currentTimeMillis() / 1000;
 	}
-
 }

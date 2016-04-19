@@ -12,6 +12,7 @@ public class Main {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 	public static void main(final String[] args) {
 		final Logging logging = Logging.getInstance();
+		@SuppressWarnings("unused")
 		final List<String> finalArgList = logging.setupLoggingFromArgs(Arrays.asList(args));
 
 		try {
