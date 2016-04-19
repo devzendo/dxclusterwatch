@@ -84,8 +84,8 @@ public class DXClusterSitePoller implements SitePoller {
 			final ClusterRecord[] r = clientResponse.getEntity(ClusterRecord[].class);
 			final ClusterRecord[] filtered = filterCallsigns(callsigns, r);
 			final long stop = System.currentTimeMillis();
-			LOGGER.debug("Retrieved {} records in {} ms", r.length, (stop - start));
-			return r;
+			LOGGER.debug("Retrieved {} records in {} ms, {} filtered records", r.length, (stop - start), filtered.length);
+			return filtered;
 		} else {
 			LOGGER.warn("Failed to poll DXCluster: " + clientResponse);
 			return new ClusterRecord[0];
