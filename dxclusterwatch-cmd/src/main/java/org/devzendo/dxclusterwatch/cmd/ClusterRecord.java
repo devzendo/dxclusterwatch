@@ -1,0 +1,202 @@
+package org.devzendo.dxclusterwatch.cmd;
+
+import java.util.Date;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+/*
+    {
+        "band": "20",
+        "call": "IS0GGA",
+        "comment": "tnx for dx.73 from sardinia.",
+        "dx_cont": "EU",
+        "dx_cqz": "16",
+        "dx_ituz": "0",
+        "dx_lat": "55.8",
+        "dx_long": "37.6",
+        "dx_name": "EUROPEAN RUSSIA",
+        "dx_prefix": "UA",
+        "dxcall": "UA5D",
+        "freq": "14217",
+        "mytime": "18/04/16 at 07:01",
+        "nr": "14689356",
+        "spotter_cont": "EU",
+        "spotter_cqz": "15",
+        "spotter_ituz": "0",
+        "spotter_lat": "39.2",
+        "spotter_long": "9.1",
+        "spotter_name": "SARDINIA",
+        "spotter_prefix": "IS0",
+        "time": "2016-04-18 07:01:00"
+    },
+ */
+
+public class ClusterRecord {
+	private String band;
+	private String call;
+	private String comment;
+	private String dx_cont;
+	private String dx_cqz;
+	private String dx_ituz;
+	private String dx_lat;
+	private String dx_long;
+	private String dx_name;
+	private String dx_prefix;
+	private String dxcall;
+	private String freq;
+	private String mytime;
+	private String nr;
+	private String spotter_cont;
+	private String spotter_cqz;
+	private String spotter_ituz;
+	private String spotter_lat;
+	private String spotter_long;
+	private String spotter_name;
+	private String spotter_prefix;
+	private String time;
+	
+	public String getMytime() {
+		return mytime;
+	}
+	public void setMytime(String mytime) {
+		this.mytime = mytime;
+	}
+	
+	public String getDx_cont() {
+		return dx_cont;
+	}
+	public void setDx_cont(String dx_cont) {
+		this.dx_cont = dx_cont;
+	}
+	public String getDx_cqz() {
+		return dx_cqz;
+	}
+	public void setDx_cqz(String dx_cqz) {
+		this.dx_cqz = dx_cqz;
+	}
+	public String getDx_ituz() {
+		return dx_ituz;
+	}
+	public void setDx_ituz(String dx_ituz) {
+		this.dx_ituz = dx_ituz;
+	}
+	public String getDx_lat() {
+		return dx_lat;
+	}
+	public void setDx_lat(String dx_lat) {
+		this.dx_lat = dx_lat;
+	}
+	public String getDx_long() {
+		return dx_long;
+	}
+	public void setDx_long(String dx_long) {
+		this.dx_long = dx_long;
+	}
+	public String getDx_name() {
+		return dx_name;
+	}
+	public void setDx_name(String dx_name) {
+		this.dx_name = dx_name;
+	}
+	public String getDx_prefix() {
+		return dx_prefix;
+	}
+	public void setDx_prefix(String dx_prefix) {
+		this.dx_prefix = dx_prefix;
+	}
+	public String getSpotter_cont() {
+		return spotter_cont;
+	}
+	public void setSpotter_cont(String spotter_cont) {
+		this.spotter_cont = spotter_cont;
+	}
+	public String getSpotter_cqz() {
+		return spotter_cqz;
+	}
+	public void setSpotter_cqz(String spotter_cqz) {
+		this.spotter_cqz = spotter_cqz;
+	}
+	public String getSpotter_ituz() {
+		return spotter_ituz;
+	}
+	public void setSpotter_ituz(String spotter_ituz) {
+		this.spotter_ituz = spotter_ituz;
+	}
+	public String getSpotter_lat() {
+		return spotter_lat;
+	}
+	public void setSpotter_lat(String spotter_lat) {
+		this.spotter_lat = spotter_lat;
+	}
+	public String getSpotter_long() {
+		return spotter_long;
+	}
+	public void setSpotter_long(String spotter_long) {
+		this.spotter_long = spotter_long;
+	}
+	public String getSpotter_name() {
+		return spotter_name;
+	}
+	public void setSpotter_name(String spotter_name) {
+		this.spotter_name = spotter_name;
+	}
+	public String getSpotter_prefix() {
+		return spotter_prefix;
+	}
+	public void setSpotter_prefix(String spotter_prefix) {
+		this.spotter_prefix = spotter_prefix;
+	}
+	public String getNr() {
+		return nr;
+	}
+	public void setNr(String nr) {
+		this.nr = nr;
+	}
+	public String getBand() {
+		return band;
+	}
+	public void setBand(String band) {
+		this.band = band;
+	}
+	public String getCall() {
+		return call;
+	}
+	public void setCall(String call) {
+		this.call = call;
+	}
+	public String getComment() {
+		return comment;
+	}
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	public String getDxcall() {
+		return dxcall;
+	}
+	public void setDxcall(String dxcall) {
+		this.dxcall = dxcall;
+	}
+	public String getFreq() {
+		return freq;
+	}
+	public void setFreq(String freq) {
+		this.freq = freq;
+	}
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
+	}
+}
