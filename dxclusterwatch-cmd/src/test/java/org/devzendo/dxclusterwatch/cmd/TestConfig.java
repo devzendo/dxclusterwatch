@@ -13,7 +13,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Set;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -58,14 +57,14 @@ public class TestConfig {
 
 	@Test
 	public void singleCallsigns() {
-		Set<String> set = Config.getCallsigns("m0cuv");
+		final Set<String> set = Config.getCallsigns("m0cuv");
 		assertThat(set, hasSize(1));
 		assertThat(set, contains("M0CUV"));
 	}
 
 	@Test
 	public void multipleCallsigns() {
-		Set<String> set = Config.getCallsigns(" m0cuv , xxt832,ff1tr  ");
+		final Set<String> set = Config.getCallsigns(" m0cuv , xxt832,ff1tr  ");
 		assertThat(set, hasSize(3));
 		assertThat(set, containsInAnyOrder("M0CUV", "XXT832", "FF1TR"));
 	}
@@ -106,7 +105,7 @@ public class TestConfig {
 	@Test
 	public void pathPointsToFile() throws Exception {
 		final File file = new File(root, "nonexistent");
-		FileWriter fileWriter = new FileWriter(file);
+		final FileWriter fileWriter = new FileWriter(file);
 		fileWriter.append("foo");
 		fileWriter.close();
 		
