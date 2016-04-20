@@ -15,9 +15,14 @@ import org.slf4j.LoggerFactory;
 public class Config {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 	private Set<String> callsigns;
+	private File siteRepoPath;
 
 	public static Logger getLogger() {
 		return LOGGER;
+	}
+
+	public File getSiteRepoPath() {
+		return siteRepoPath;
 	}
 
 	public Set<String> getCallsigns() {
@@ -28,6 +33,23 @@ public class Config {
 		final Properties properties = loadProperties(prefsFile);
 		
 		callsigns = getCallsigns(properties.getProperty("callsigns"));
+		
+		siteRepoPath = mustBePath("siteRepoPath", properties.getProperty("siteRepoPath"));
+	}
+
+	static File mustBePath(final String propertyName, final String path) {
+		LOGGER.debug("Checking property {} path {}", propertyName, path);
+		if (path == null || path.trim().isEmpty()) {
+			throw new IllegalArgumentException("Empty property '" + propertyName + "'");
+		}
+		final File pathFile = new File(path);
+		if (!pathFile.exists()) {
+			throw new IllegalArgumentException(path + " directory does not exist");
+		}
+		if (!pathFile.isDirectory()) {
+			throw new IllegalArgumentException(path + " is a file but should be a directory");
+		}
+		return pathFile;
 	}
 
 	static Set<String> getCallsigns(final String prop) {
