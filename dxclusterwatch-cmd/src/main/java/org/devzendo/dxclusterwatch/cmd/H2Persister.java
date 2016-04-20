@@ -24,6 +24,7 @@ public class H2Persister implements Persister {
 	private final File dbFile;
 	private final SimpleJdbcTemplate template;
 	private final SingleConnectionDataSource dataSource;
+	private final RowMapper<ClusterRecord> rowMapper;
 
 	public H2Persister(final File storeDir) {
 		dbFile = new File(storeDir, "dxclusterwatch");
@@ -38,6 +39,19 @@ public class H2Persister implements Persister {
 		} else {
 			LOGGER.debug("Database open");
 		}
+		rowMapper = new RowMapper<ClusterRecord>() {
+			@Override
+			public ClusterRecord mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+				final int nr = rs.getInt("nr");
+				final String dxcall = rs.getString("dxcall");
+				final String call = rs.getString("call");
+				final Timestamp when = rs.getTimestamp("when");
+				final int freq = rs.getInt("freq");
+				final String comment = rs.getString("comment");
+				return ClusterRecord.dbRecord(nr, dxcall, call, when.toLocalDateTime(), freq, comment);
+			}
+		};
+
 	}
 
 	private boolean exists() {
@@ -93,18 +107,7 @@ public class H2Persister implements Persister {
 	public ClusterRecord getNextRecordToTweet() {
 		final String sql = "SELECT TOP 1 * FROM Spots WHERE tweeted = FALSE ORDER BY when";
 		try {
-			return template.queryForObject(sql, new RowMapper<ClusterRecord>() {
-				@Override
-				public ClusterRecord mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-					final int nr = rs.getInt("nr");
-					final String dxcall = rs.getString("dxcall");
-					final String call = rs.getString("call");
-					final Timestamp when = rs.getTimestamp("when");
-					final int freq = rs.getInt("freq");
-					final String comment = rs.getString("comment");
-					return ClusterRecord.dbRecord(nr, dxcall, call, when.toLocalDateTime(), freq, comment);
-				}
-			});
+			return template.queryForObject(sql, rowMapper);
 		} catch (final IncorrectResultSizeDataAccessException e) {
 			return null;
 		}
@@ -134,7 +137,7 @@ public class H2Persister implements Persister {
 
 	@Override
 	public List<ClusterRecord> getRecords() {
-		// TODO Auto-generated method stub
-		return null;
+		final String sql = "SELECT * FROM Spots ORDER BY when DESC";
+		return template.query(sql, rowMapper);
 	}
 }

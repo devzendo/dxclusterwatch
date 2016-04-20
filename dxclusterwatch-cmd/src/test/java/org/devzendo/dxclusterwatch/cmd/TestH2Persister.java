@@ -2,14 +2,17 @@ package org.devzendo.dxclusterwatch.cmd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import org.h2.engine.ExistenceChecker;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -96,10 +99,22 @@ public class TestH2Persister {
 
 		assertThat(store.getNextRecordToTweet(), nullValue());
 	}
-	
+
+	@Test
+	public void readRecords() throws Exception {
+		store.persistRecords(new ClusterRecord[] { dbRecord1, dbRecord3, dbRecord2, dbRecord4 });
+		
+		final List<ClusterRecord> records = store.getRecords();
+		assertThat(records, hasSize(4));
+		
+		assertThat(records.get(0).getNr(), equalTo("4"));
+		assertThat(records.get(1).getNr(), equalTo("3"));
+		assertThat(records.get(2).getNr(), equalTo("2"));
+		assertThat(records.get(3).getNr(), equalTo("1"));
+	}
+
 	private LocalDateTime when(final long secondsFromEpoch) {
 		final LocalDateTime when = LocalDateTime.ofEpochSecond(secondsFromEpoch, 0, ZoneOffset.UTC);
 		return when;
 	}
-
 }
