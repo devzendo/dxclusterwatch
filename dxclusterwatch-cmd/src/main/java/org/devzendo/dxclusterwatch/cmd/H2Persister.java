@@ -30,4 +30,10 @@ public class H2Persister implements Persister {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
 }

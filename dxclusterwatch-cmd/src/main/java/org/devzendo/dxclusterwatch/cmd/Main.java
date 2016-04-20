@@ -24,12 +24,16 @@ public class Main {
 			}
 			
 			final Config config = new Config(prefsFactory.getPrefsFile());
-			final Persister persister = new H2Persister(prefsFactory.getPrefsDir());
 			final Tweeter tweeter = new Twitter4JTweeter(config);
-			final PageBuilder pageBuilder = new BitbucketPagesPageBuilder(config, persister);
-			
-			new DXClusterWatch(prefsFactory.getPrefsDir(), config, persister, pageBuilder, tweeter).start();
-
+			final Persister persister = new H2Persister(prefsFactory.getPrefsDir());
+			try {
+				final PageBuilder pageBuilder = new BitbucketPagesPageBuilder(config, persister);
+				
+				new DXClusterWatch(prefsFactory.getPrefsDir(), config, persister, pageBuilder, tweeter).start();
+			}
+			finally {
+				persister.close();
+			}
 		} catch (final Exception e) {
 			LOGGER.error(e.getMessage(), e);
 			System.exit(1);

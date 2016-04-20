@@ -8,4 +8,5 @@ public interface Persister {
 
 	void markTweeted(ClusterRecord tweetedRecord);
 
+	void close();
 }

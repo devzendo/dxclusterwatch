@@ -78,6 +78,7 @@ public class DXClusterWatch {
 
 			ThreadUtils.waitNoInterruption(1000L);
 		}
+		
 		LOGGER.info("Finishing");
 	}
 
