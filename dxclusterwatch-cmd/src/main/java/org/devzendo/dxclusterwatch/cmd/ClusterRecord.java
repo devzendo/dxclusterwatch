@@ -1,11 +1,6 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import java.util.Date;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -198,5 +193,35 @@ public class ClusterRecord {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
+	}
+	
+	public static ClusterRecord dbRecord(final int nr, final String dxcall, final String call, final LocalDateTime when, final int freq, final String comment) {
+		final ClusterRecord r = new ClusterRecord();
+		r.setNr("" + nr);
+		r.setDxcall(dxcall);
+		r.setCall(call);
+		r.setTime(when.toString());
+		r.setFreq("" + freq);
+		r.setComment(comment);
+		return r;
+	}
+	
+	public String toDbString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		sb.append("nr=");
+		sb.append(getNr());
+		sb.append(",dxcall=");
+		sb.append(getDxcall());
+		sb.append(",call=");
+		sb.append(getCall());
+		sb.append(",when=");
+		sb.append(getTime());
+		sb.append(",freq=");
+		sb.append(getFreq());
+		sb.append(",comment=");
+		sb.append(getComment());
+		sb.append("]");
+		return sb.toString();
 	}
 }
