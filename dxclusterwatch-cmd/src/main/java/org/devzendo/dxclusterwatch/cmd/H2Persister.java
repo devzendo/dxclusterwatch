@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.engine.ExistenceChecker;
@@ -56,7 +57,7 @@ public class H2Persister implements Persister {
 	@Override
 	public boolean persistRecords(final ClusterRecord[] records) {
 		int newRecords = 0;
-		for (ClusterRecord record : records) {
+		for (final ClusterRecord record : records) {
 			if (!recordExists(record)) {
 				newRecords++;
 				storeRecord(record);
@@ -81,9 +82,9 @@ public class H2Persister implements Persister {
 	}
 
 	private boolean recordExists(final ClusterRecord record) {
-		int nr = Integer.parseInt(record.getNr());
+		final int nr = Integer.parseInt(record.getNr());
 		LOGGER.debug("Does record {} exist?", nr);
-		boolean exists = template.queryForInt("SELECT COUNT(*) FROM Spots WHERE nr = ?", nr) == 1;
+		final boolean exists = template.queryForInt("SELECT COUNT(*) FROM Spots WHERE nr = ?", nr) == 1;
 		LOGGER.debug("Record {} {}", nr, exists ? "exists" : "does not exist");
 		return exists;
 	}
@@ -104,7 +105,7 @@ public class H2Persister implements Persister {
 					return ClusterRecord.dbRecord(nr, dxcall, call, when.toLocalDateTime(), freq, comment);
 				}
 			});
-		} catch (IncorrectResultSizeDataAccessException e) {
+		} catch (final IncorrectResultSizeDataAccessException e) {
 			return null;
 		}
 	}
@@ -129,5 +130,11 @@ public class H2Persister implements Persister {
 		} catch (CannotGetJdbcConnectionException | SQLException e) {
 			LOGGER.warn("Failed to close db: {}", e.getMessage());
 		}
+	}
+
+	@Override
+	public List<ClusterRecord> getRecords() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
