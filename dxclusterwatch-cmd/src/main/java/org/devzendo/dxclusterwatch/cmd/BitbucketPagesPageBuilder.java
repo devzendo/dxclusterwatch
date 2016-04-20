@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -17,12 +16,10 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BitbucketPagesPageBuilder.class);
 
-	private final Config config;
 	private final Persister persister;
 	private final File indexFile;
 
 	public BitbucketPagesPageBuilder(final Config config, final Persister persister) {
-		this.config = config;
 		this.persister = persister;
 
 		indexFile = new File(config.getSiteRepoPath(), "index.html");
