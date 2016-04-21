@@ -53,11 +53,10 @@ public class DXClusterWatch {
 			if (nowSeconds() >= nextPollTime) {
 				try {
 					final ClusterRecord[] records = sitePoller.poll();
+					backoffCount = 0;
+					nextPollTime = nowSeconds() + pollSeconds;
+					LOGGER.info("Next poll in " + pollSeconds + " secs");
 					if (records.length > 0) {
-						backoffCount = 0;
-						nextPollTime = nowSeconds() + pollSeconds;
-						LOGGER.info("Next poll in " + pollSeconds + " secs");
-
 						LOGGER.debug("Persisting " + records.length + " records");
 						final int newRecords = persister.persistRecords(records);
 						if (newRecords > 0) {
