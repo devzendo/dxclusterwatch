@@ -1,8 +1,5 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.devzendo.commoncode.logging.Logging;
 import org.devzendo.commoncode.prefs.PrefsFactory;
 import org.slf4j.Logger;
@@ -11,9 +8,7 @@ import org.slf4j.LoggerFactory;
 public class Main {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 	public static void main(final String[] args) {
-		final Logging logging = Logging.getInstance();
-		@SuppressWarnings("unused")
-		final List<String> finalArgList = logging.setupLoggingFromArgs(Arrays.asList(args));
+		Logging.getInstance();
 
 		try {
 			final PrefsFactory prefsFactory = new PrefsFactory("dxclusterwatch", "dxclusterwatch.properties");
