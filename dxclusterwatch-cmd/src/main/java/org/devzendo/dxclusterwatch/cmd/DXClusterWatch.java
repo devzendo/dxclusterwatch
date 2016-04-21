@@ -9,20 +9,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DXClusterWatch {
-	private static final long DXCLUSTER_POLL_INTERVAL_SECONDS = 60 * 5; // 5 mins
 	private static final Logger LOGGER = LoggerFactory.getLogger(DXClusterWatch.class);
 	
 	private final Persister persister;
 	private final PageBuilder pageBuilder;
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
+	private final int pollSeconds;
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
+
 
 	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
+		final int pollMinutes = config.getPollMinutes();
+		pollSeconds = 60 * pollMinutes;
 		final Set<String> callsigns = config.getCallsigns();
 		if (callsigns.isEmpty()) {
 			throw new IllegalStateException("No callsigns configured");
@@ -43,8 +46,8 @@ public class DXClusterWatch {
 					final ClusterRecord[] records = sitePoller.poll();
 					if (records.length > 0) {
 						backoffCount = 0;
-						nextPollTime = nowSeconds() + DXCLUSTER_POLL_INTERVAL_SECONDS;
-						LOGGER.info("Next poll in " + DXCLUSTER_POLL_INTERVAL_SECONDS + " secs");
+						nextPollTime = nowSeconds() + pollSeconds;
+						LOGGER.info("Next poll in " + pollSeconds + " secs");
 
 						LOGGER.debug("Persisting " + records.length + " records");
 						final int newRecords = persister.persistRecords(records);

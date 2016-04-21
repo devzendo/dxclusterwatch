@@ -13,3 +13,5 @@ This path will be the ~/dxclusterwatch directory.
 The configuration is in the ~/dxclusterwatch/dxclusterwatch.properties file, and it has the following properties:
 callsigns= (a comma-separated list of callsigns to watch for (i.e. the dx callsign))
 siteRepoPath= (a path to a cloned repo of a 'pages' site, e.g. bitbucket pages.
+pollMinutes= (how many minutes between dxcluster.co.uk polls, suggest 2 mins)
+ 

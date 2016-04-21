@@ -14,8 +14,9 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
-	private Set<String> callsigns;
-	private File siteRepoPath;
+	private final Set<String> callsigns;
+	private final File siteRepoPath;
+	private final int pollMinutes;
 
 	public static Logger getLogger() {
 		return LOGGER;
@@ -29,12 +30,18 @@ public class Config {
 		return callsigns;
 	}
 
+	public int getPollMinutes() {
+		return pollMinutes;
+	}
+
 	public Config(final File prefsFile) {
 		final Properties properties = loadProperties(prefsFile);
 		
 		callsigns = getCallsigns(properties.getProperty("callsigns"));
 		
 		siteRepoPath = mustBePath("siteRepoPath", properties.getProperty("siteRepoPath"));
+		
+		pollMinutes = mustBeInteger("pollMinutes", properties.getProperty("pollMinutes"));
 	}
 
 	static File mustBePath(final String propertyName, final String path) {
@@ -52,6 +59,18 @@ public class Config {
 		return pathFile;
 	}
 
+	static int mustBeInteger(final String propertyName, final String intText) {
+		LOGGER.debug("Checking property {} integer {}", propertyName, intText);
+		if (intText == null || intText.trim().isEmpty()) {
+			throw new IllegalArgumentException("Empty property '" + propertyName + "'");
+		}
+		try {
+			return Integer.parseInt(intText);
+		} catch (final NumberFormatException nfe) {
+			throw new IllegalArgumentException(intText + " is not an integer");
+		}
+	}
+
 	static Set<String> getCallsigns(final String prop) {
 		if (prop == null) {
 			return Collections.emptySet();
@@ -62,7 +81,7 @@ public class Config {
 		}
 		final String[] split = StringUtils.defaultString(trim).split(",");
 		final Set<String> set = new HashSet<>();
-		for (String callsign : split) {
+		for (final String callsign : split) {
 			set.add(callsign.trim().toUpperCase());
 		}
 		return set;
@@ -72,7 +91,7 @@ public class Config {
 		final Properties props = new Properties();
 		try {
 			props.load(new FileInputStream(prefsFile));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			final String msg = "Can't load DXClusterWatch config file " + prefsFile.getAbsolutePath() + ": " + e.getMessage();
 			LOGGER.error(msg);
 			throw new RuntimeException(msg);

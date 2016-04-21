@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -118,4 +119,27 @@ public class TestConfig {
 		Config.mustBePath("siteRepoPath", file.getAbsolutePath());
 	}
 
+	@Test
+	public void nullInteger() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'pollMinutes'"));
+
+		Config.mustBeInteger("pollMinutes", null);
+	}
+
+	@Test
+	public void emptyInteger() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'pollMinutes'"));
+
+		Config.mustBeInteger("pollMinutes", "");
+	}
+
+	@Test
+	public void notAnInteger() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("ffs is not an integer"));
+
+		Config.mustBeInteger("pollMinutes", "ffs");
+	}
 }
