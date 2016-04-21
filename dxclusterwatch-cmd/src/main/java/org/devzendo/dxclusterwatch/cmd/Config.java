@@ -18,6 +18,11 @@ public class Config {
 	private final File siteRepoPath;
 	private final int pollMinutes;
 	private final int tweetSeconds;
+	private final File hgExecutablePath;
+
+	public File getHgExecutablePath() {
+		return hgExecutablePath;
+	}
 
 	public static Logger getLogger() {
 		return LOGGER;
@@ -46,6 +51,7 @@ public class Config {
 		siteRepoPath = mustBePath("siteRepoPath", properties.getProperty("siteRepoPath"));
 		pollMinutes = mustBeInteger("pollMinutes", properties.getProperty("pollMinutes"));
 		tweetSeconds = mustBeInteger("tweetSeconds", properties.getProperty("tweetSeconds"));
+		hgExecutablePath = mustBeExecutablePath("hgExecutablePath", properties.getProperty("hgExecutablePath"));
 	}
 
 	static File mustBePath(final String propertyName, final String path) {
@@ -61,6 +67,21 @@ public class Config {
 			throw new IllegalArgumentException(path + " is a file but should be a directory");
 		}
 		return pathFile;
+	}
+
+	static File mustBeExecutablePath(final String propertyName, final String path) {
+		LOGGER.debug("Checking property {} executable path {}", propertyName, path);
+		if (path == null || path.trim().isEmpty()) {
+			throw new IllegalArgumentException("Empty property '" + propertyName + "'");
+		}
+		final File exeFile = new File(path);
+		if (!exeFile.exists()) {
+			throw new IllegalArgumentException(path + " executable does not exist");
+		}
+		if (!exeFile.canExecute()) {
+			throw new IllegalArgumentException(path + " is not executable");
+		}
+		return exeFile;
 	}
 
 	static int mustBeInteger(final String propertyName, final String intText) {

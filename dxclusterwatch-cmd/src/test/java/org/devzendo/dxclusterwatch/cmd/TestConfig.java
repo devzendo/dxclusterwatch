@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -119,6 +118,71 @@ public class TestConfig {
 		Config.mustBePath("siteRepoPath", file.getAbsolutePath());
 	}
 
+	@Test
+	public void existentExecutablePath() throws Exception {
+		assertThat(root.exists(), equalTo(true));
+		Config.mustBeExecutablePath("hgExecutablePath", root.getAbsolutePath());
+	}
+
+	@Test
+	public void emptyExecutablePath() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'hgExecutablePath'"));
+
+		Config.mustBeExecutablePath("hgExecutablePath", "");
+	}
+
+	@Test
+	public void nullExecutablePath() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'hgExecutablePath'"));
+
+		Config.mustBeExecutablePath("hgExecutablePath", null);
+	}
+
+	@Test
+	public void nonExistentExecutablePath() throws Exception {
+		final File nonExistentPath = new File(root, "nonexistent");
+		assertThat(nonExistentPath.exists(), equalTo(false));
+
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("nonexistent executable does not exist"));
+
+		Config.mustBeExecutablePath("hgExecutablePath", nonExistentPath.getPath());
+	}
+
+	@Test
+	public void pathPointsToNonExecutable() throws Exception {
+		final File file = new File(root, "somefile");
+		final FileWriter fileWriter = new FileWriter(file);
+		fileWriter.append("foo");
+		fileWriter.close();
+		
+		assertThat(file.exists(), equalTo(true));
+		assertThat(file.isFile(), equalTo(true));
+		assertThat(file.canExecute(), equalTo(false));
+
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("somefile is not executable"));
+
+		Config.mustBeExecutablePath("hgExecutablePath", file.getAbsolutePath());
+	}
+
+	@Test
+	public void pathPointsToExecutable() throws Exception {
+		final File file = new File(root, "somefile");
+		final FileWriter fileWriter = new FileWriter(file);
+		fileWriter.append("foo");
+		fileWriter.close();
+		file.setExecutable(true);
+		
+		assertThat(file.exists(), equalTo(true));
+		assertThat(file.isFile(), equalTo(true));
+		assertThat(file.canExecute(), equalTo(true));
+
+		Config.mustBeExecutablePath("hgExecutablePath", file.getAbsolutePath());
+	}
+	
 	@Test
 	public void nullInteger() throws Exception {
 		thrown.expect(IllegalArgumentException.class);
