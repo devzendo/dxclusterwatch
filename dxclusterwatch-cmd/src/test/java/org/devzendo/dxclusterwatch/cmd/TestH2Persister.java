@@ -60,13 +60,19 @@ public class TestH2Persister {
 
 	@Test
 	public void newRecordIsTrueOnFirstPersist() throws Exception {
-		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(true));
+		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(1));
 	}
 
 	@Test
 	public void newRecordIsFalseOnSecondPersist() throws Exception {
-		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(true));
-		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(false));
+		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(1));
+		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(0));
+	}
+
+	@Test
+	public void countOfNewRecords() throws Exception {
+		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1, dbRecord2, dbRecord3, dbRecord3, dbRecord4 }), equalTo(4));
+		assertThat(store.persistRecords(new ClusterRecord[] { dbRecord1 }), equalTo(0));
 	}
 
 	@Test

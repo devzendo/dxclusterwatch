@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Persister {
 
-	boolean persistRecords(ClusterRecord[] records);
+	int persistRecords(ClusterRecord[] records);
 
 	List<ClusterRecord> getRecords();
 

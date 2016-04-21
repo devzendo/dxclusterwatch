@@ -69,7 +69,7 @@ public class H2Persister implements Persister {
 	}
 
 	@Override
-	public boolean persistRecords(final ClusterRecord[] records) {
+	public int persistRecords(final ClusterRecord[] records) {
 		int newRecords = 0;
 		for (final ClusterRecord record : records) {
 			if (!recordExists(record)) {
@@ -78,7 +78,7 @@ public class H2Persister implements Persister {
 			}
 		}
 		LOGGER.info("{} records persisted, {} new", records.length, newRecords);
-		return newRecords > 0;
+		return newRecords;
 	}
 
 	private void storeRecord(final ClusterRecord record) {

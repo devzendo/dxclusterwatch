@@ -1,5 +1,5 @@
 package org.devzendo.dxclusterwatch.cmd;
 
 public interface PageBuilder {
-	void rebuildPage();
+	void rebuildPage(int retrievedRecords, int newRecords);
 }

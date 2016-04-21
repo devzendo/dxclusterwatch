@@ -2,6 +2,7 @@ package org.devzendo.dxclusterwatch.cmd;
 
 import java.io.File;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ public class DXClusterWatch {
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
 	
-	private boolean running = true;
+	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
 		this.persister = persister;
@@ -36,7 +37,7 @@ public class DXClusterWatch {
 		int tweetNumber = 1;
 		int pageRebuildNumber = 1;
 		LOGGER.info("Starting....");
-		while (running) {
+		while (running.get()) {
 			if (nowSeconds() >= nextPollTime) {
 				try {
 					final ClusterRecord[] records = sitePoller.poll();
@@ -46,11 +47,11 @@ public class DXClusterWatch {
 						LOGGER.info("Next poll in " + DXCLUSTER_POLL_INTERVAL_SECONDS + " secs");
 
 						LOGGER.debug("Persisting " + records.length + " records");
-						final boolean newRecords = persister.persistRecords(records);
-						if (newRecords) {
+						final int newRecords = persister.persistRecords(records);
+						if (newRecords > 0) {
 							LOGGER.info("Rebuilding page #" + pageRebuildNumber);
 							pageRebuildNumber++;
-							pageBuilder.rebuildPage();
+							pageBuilder.rebuildPage(records.length, newRecords);
 						}
 					}					
 				} catch (final RuntimeException re) {

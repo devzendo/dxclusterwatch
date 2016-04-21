@@ -26,7 +26,7 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 	}
 
 	@Override
-	public void rebuildPage() {
+	public void rebuildPage(final int retrievedRecords, final int newRecords) {
 		LOGGER.debug("Rebuilding page");
 		try {
 			final FileWriter fw = new FileWriter(indexFile);
@@ -80,7 +80,7 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 			fw.write("<td>" + record.getComment() + "</td>");
 			fw.write("</tr>");
 		}
-		
+
 		fw.write("</table></div>");
 	}
 
