@@ -34,6 +34,13 @@ public class DXClusterWatch {
 			throw new IllegalStateException("No callsigns configured");
 		}
 		sitePoller = new DXClusterSitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all", callsigns);
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+	         @Override
+	         public void run() {
+	            LOGGER.info("Interrupt received, stopping");
+	            running.set(false);
+	         }
+	      });
 	}
 	
 	public void start() {
