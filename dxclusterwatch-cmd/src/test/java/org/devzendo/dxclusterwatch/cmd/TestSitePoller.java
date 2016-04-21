@@ -12,6 +12,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.devzendo.commoncode.resource.ResourceLoader;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class TestSitePoller {
 		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl, callsigns);
 		final ClusterRecord[] records = sp.poll();
 		System.out.println("Read " + records.length + " records");
-		for (ClusterRecord clusterRecord : records) {
+		for (final ClusterRecord clusterRecord : records) {
 			System.out.println(clusterRecord);
 		}
 		assertThat(records.length, equalTo(1));
@@ -42,7 +43,7 @@ public class TestSitePoller {
 
 	@Test
 	public void loadingOfFileWorks() throws JsonParseException, JsonMappingException, IOException {		
-		ClusterRecord[] records = getRecordsFromSampleFile();
+		final ClusterRecord[] records = getRecordsFromSampleFile();
 		
 		assertThat(records.length, equalTo(35));
 	}
@@ -60,14 +61,20 @@ public class TestSitePoller {
 		final ClusterRecord[] records = getRecordsFromSampleFile();
 		final HashSet<String> callsigns = new HashSet<String>();
 		callsigns.add("UA5D");
+		callsigns.add("HG225");
+		// HG225A is present in feed, imagine I'd configured that but they were on air as HG225A/P
+		// so I want to see this.
 
-		ClusterRecord[] filtered = DXClusterSitePoller.filterCallsigns(callsigns, records);
+		final ClusterRecord[] filtered = DXClusterSitePoller.filterCallsigns(callsigns, records);
 		
 		System.out.println("Read " + filtered.length + " records");
-		for (ClusterRecord clusterRecord : filtered) {
+		final HashSet<String> dxcalls = new HashSet<String>();
+		for (final ClusterRecord clusterRecord : filtered) {
 			System.out.println(clusterRecord);
+			dxcalls.add(clusterRecord.getDxcall());
 		}
-		assertThat(filtered.length, equalTo(1));
+		assertThat(filtered.length, equalTo(4));
+		assertThat(dxcalls, Matchers.containsInAnyOrder("UA5D", "HG225E", "HG225MSE", "HG225A"));
 	}
 
 	private ClusterRecord[] getRecordsFromSampleFile() throws IOException, JsonParseException, JsonMappingException {

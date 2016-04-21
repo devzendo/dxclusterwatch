@@ -31,17 +31,17 @@ public class DXClusterSitePoller implements SitePoller {
 	private final Set<String> callsigns;
 	private final WebResource webResource;
 
-	public DXClusterSitePoller(File prefsDir, final String serverUrl, final Set<String> callsigns) {
+	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Set<String> callsigns) {
 		this.callsigns = callsigns;
 		try {
 			KeyStore.getInstance("JKS");
 			System.setProperty("javax.net.ssl.trustStore", new File(prefsDir, "cacerts").getAbsolutePath());
 
-			ClientConfig clientConfig = new DefaultClientConfig();
+			final ClientConfig clientConfig = new DefaultClientConfig();
 			clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
 			clientConfig.getClasses().add(JacksonJsonProvider.class);
 			
-			Client client = Client.create(clientConfig);
+			final Client client = Client.create(clientConfig);
 			//client.addFilter(new LoggingFilter(System.out));
 			
 			// DXCluster.co.uk always sends a content-type of text/html, which Jersey doesn't interpret as application/json, so bodge the response
@@ -49,16 +49,16 @@ public class DXClusterSitePoller implements SitePoller {
 			client.addFilter(new ClientFilter() {
 
 				@Override
-				public ClientResponse handle(ClientRequest cr) throws ClientHandlerException {
+				public ClientResponse handle(final ClientRequest cr) throws ClientHandlerException {
 					final ClientResponse response = getNext().handle(cr);
 					final InBoundHeaders headers = new InBoundHeaders();
-					MultivaluedMap<String, String> origHeaders = response.getHeaders();
-					for (String header: origHeaders.keySet()) {
+					final MultivaluedMap<String, String> origHeaders = response.getHeaders();
+					for (final String header: origHeaders.keySet()) {
 						if (header.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
 							//System.out.println("Setting the application/json content type");
 							headers.putSingle(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 						} else {
-							List<String> origHeaderValue = origHeaders.get(header);
+							final List<String> origHeaderValue = origHeaders.get(header);
 							//System.out.println("Setting header " + header + " to " + origHeaderValue);
 							headers.put(header, origHeaderValue);
 						}
@@ -67,17 +67,18 @@ public class DXClusterSitePoller implements SitePoller {
 				}});
 			
 			webResource = client.resource(serverUrl);
-		} catch (KeyStoreException e1) {
+		} catch (final KeyStoreException e1) {
 			final String msg = "Can't set up key store: " + e1.getMessage();
 			LOGGER.error(msg);
 			throw new RuntimeException(msg, e1);
 		}
 	}
 
+	@Override
 	public ClusterRecord[] poll() {
 		LOGGER.debug("Polling DXCluster...");
 		final long start = System.currentTimeMillis();
-		ClientResponse clientResponse = webResource.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+		final ClientResponse clientResponse = webResource.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
 		if (clientResponse.getStatus() == 200) {
 			LOGGER.debug("Response: " + clientResponse);
 			final ClusterRecord[] r = clientResponse.getEntity(ClusterRecord[].class);
@@ -92,14 +93,22 @@ public class DXClusterSitePoller implements SitePoller {
 	}
 
 	static ClusterRecord[] filterCallsigns(final Set<String> callsigns, final ClusterRecord[] records) {
+		LOGGER.debug("Filtering {} records by {} callsigns", records.length, callsigns.size());
 		if (callsigns == null || callsigns.isEmpty()) {
 			return new ClusterRecord[0];
 		}
 		
 		final ArrayList<ClusterRecord> outList = new ArrayList<>();
-		for (ClusterRecord cr : records) {
+		for (final ClusterRecord cr : records) {
 			final String upperDXCall = cr.getDxcall().toUpperCase();
-			if (callsigns.contains(upperDXCall)) {
+			boolean found = false;
+			for (final String callsign : callsigns) {
+				LOGGER.debug("Does received callsign {} contain requested {}", upperDXCall, callsign);
+				if (upperDXCall.contains(callsign)) {
+					found = true;
+				}
+			}
+			if (found) {
 				outList.add(cr);
 			}
 		}
