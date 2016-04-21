@@ -31,7 +31,7 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 		try {
 			final FileWriter fw = new FileWriter(indexFile);
 			try {
-				writeHeader(fw);
+				writeHeader(fw, retrievedRecords, newRecords);
 				final List<ClusterRecord> records = persister.getRecords();
 				if (records.isEmpty()) {
 					writeEmpty(fw);
@@ -47,7 +47,7 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 		}
 	}
 
-	private void writeHeader(final FileWriter fw) throws IOException {
+	private void writeHeader(final FileWriter fw, final int retrievedRecords, final int newRecords) throws IOException {
 		appendResource(fw, "header.html");
 
 		final SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
@@ -55,6 +55,8 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 
 		// Time in GMT
 		fw.write("Page updated " + dateFormatGmt.format(new Date()));
+		fw.write("<br>");
+		fw.write(String.format("Retrieved %d records; %d new records", retrievedRecords, newRecords));
 		fw.write("<hr>");
 	}
 
