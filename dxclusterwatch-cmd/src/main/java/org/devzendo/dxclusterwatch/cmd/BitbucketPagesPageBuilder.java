@@ -97,4 +97,10 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 	private void appendResource(final FileWriter fw, final String resourcePath) throws IOException {
 		fw.write(ResourceLoader.readResource(resourcePath));
 	}
+
+	@Override
+	public void publishPage() {
+		// TODO Auto-generated method stub
+		
+	}
 }

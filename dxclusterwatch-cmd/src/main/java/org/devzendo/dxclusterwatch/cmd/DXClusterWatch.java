@@ -52,6 +52,8 @@ public class DXClusterWatch {
 							LOGGER.info("Rebuilding page #" + pageRebuildNumber);
 							pageRebuildNumber++;
 							pageBuilder.rebuildPage(records.length, newRecords);
+							LOGGER.info("Publishing page...");
+							pageBuilder.publishPage();
 						}
 					}					
 				} catch (final RuntimeException re) {
