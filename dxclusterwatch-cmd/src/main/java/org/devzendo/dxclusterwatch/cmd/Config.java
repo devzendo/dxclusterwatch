@@ -17,6 +17,7 @@ public class Config {
 	private final Set<String> callsigns;
 	private final File siteRepoPath;
 	private final int pollMinutes;
+	private final int tweetSeconds;
 
 	public static Logger getLogger() {
 		return LOGGER;
@@ -34,14 +35,17 @@ public class Config {
 		return pollMinutes;
 	}
 
+	public int getTweetSeconds() {
+		return tweetSeconds;
+	}
+
 	public Config(final File prefsFile) {
 		final Properties properties = loadProperties(prefsFile);
 		
-		callsigns = getCallsigns(properties.getProperty("callsigns"));
-		
+		callsigns = getCallsigns(properties.getProperty("callsigns"));		
 		siteRepoPath = mustBePath("siteRepoPath", properties.getProperty("siteRepoPath"));
-		
 		pollMinutes = mustBeInteger("pollMinutes", properties.getProperty("pollMinutes"));
+		tweetSeconds = mustBeInteger("tweetSeconds", properties.getProperty("tweetSeconds"));
 	}
 
 	static File mustBePath(final String propertyName, final String path) {
@@ -98,5 +102,4 @@ public class Config {
 		}
 		return props;
 	}
-
 }

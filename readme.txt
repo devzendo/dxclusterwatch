@@ -14,4 +14,4 @@ The configuration is in the ~/dxclusterwatch/dxclusterwatch.properties file, and
 callsigns= (a comma-separated list of callsigns to watch for (i.e. the dx callsign))
 siteRepoPath= (a path to a cloned repo of a 'pages' site, e.g. bitbucket pages.
 pollMinutes= (how many minutes between dxcluster.co.uk polls, suggest 2 mins)
- 
+tweetSeconds= (how many seconds between posting tweets, suggest 30 secs)

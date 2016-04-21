@@ -16,8 +16,10 @@ public class DXClusterWatch {
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
 	private final int pollSeconds;
+	private final int tweetSeconds;
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
+
 
 
 	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
@@ -26,6 +28,7 @@ public class DXClusterWatch {
 		this.tweeter = tweeter;
 		final int pollMinutes = config.getPollMinutes();
 		pollSeconds = 60 * pollMinutes;
+		tweetSeconds = config.getTweetSeconds();
 		final Set<String> callsigns = config.getCallsigns();
 		if (callsigns.isEmpty()) {
 			throw new IllegalStateException("No callsigns configured");
@@ -75,7 +78,7 @@ public class DXClusterWatch {
 						tweeter.tweet(nextRecordToTweet);
 						tweetNumber++;
 						persister.markTweeted(nextRecordToTweet);
-						nextTweet = nowSeconds() + 30L;
+						nextTweet = nowSeconds() + tweetSeconds;
 					} catch (final RuntimeException re) {
 						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage());
 					}
