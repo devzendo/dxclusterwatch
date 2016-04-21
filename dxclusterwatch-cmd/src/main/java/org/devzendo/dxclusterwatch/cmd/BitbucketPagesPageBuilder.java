@@ -1,5 +1,6 @@
 package org.devzendo.dxclusterwatch.cmd;
 
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,18 +70,18 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 		fw.write("<td>IMD Station Callsign</td>");
 		fw.write("<td>Called by</td>");
 		fw.write("<td>Comment</td>");
-		fw.write("</tr>");
+		fw.write("</tr>\n");
 
 		int num = 0;
 		for (final ClusterRecord record : records) {
 			fw.write("<tr class=\"tr" + num + "\">");
 			num ^= 1;
-			fw.write("<td>" + record.getTime() + "</td>");
-			fw.write("<td>" + record.getFreq() + "</td>");
-			fw.write("<td>" + record.getDxcall() + "</td>");
-			fw.write("<td>" + record.getCall() + "</td>");
-			fw.write("<td>" + record.getComment() + "</td>");
-			fw.write("</tr>");
+			fw.write("<td>" + escapeHtml4(record.getTime()) + "</td>");
+			fw.write("<td>" + escapeHtml4(record.getFreq()) + "</td>");
+			fw.write("<td>" + escapeHtml4(record.getDxcall()) + "</td>");
+			fw.write("<td>" + escapeHtml4(record.getCall()) + "</td>");
+			fw.write("<td>" + escapeHtml4(record.getComment()) + "</td>");
+			fw.write("</tr>\n");
 		}
 
 		fw.write("</table></div>");
