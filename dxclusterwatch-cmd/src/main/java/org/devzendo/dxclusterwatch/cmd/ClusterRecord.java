@@ -59,134 +59,134 @@ public class ClusterRecord {
 	public String getMytime() {
 		return mytime;
 	}
-	public void setMytime(String mytime) {
+	public void setMytime(final String mytime) {
 		this.mytime = mytime;
 	}
 	
 	public String getDx_cont() {
 		return dx_cont;
 	}
-	public void setDx_cont(String dx_cont) {
+	public void setDx_cont(final String dx_cont) {
 		this.dx_cont = dx_cont;
 	}
 	public String getDx_cqz() {
 		return dx_cqz;
 	}
-	public void setDx_cqz(String dx_cqz) {
+	public void setDx_cqz(final String dx_cqz) {
 		this.dx_cqz = dx_cqz;
 	}
 	public String getDx_ituz() {
 		return dx_ituz;
 	}
-	public void setDx_ituz(String dx_ituz) {
+	public void setDx_ituz(final String dx_ituz) {
 		this.dx_ituz = dx_ituz;
 	}
 	public String getDx_lat() {
 		return dx_lat;
 	}
-	public void setDx_lat(String dx_lat) {
+	public void setDx_lat(final String dx_lat) {
 		this.dx_lat = dx_lat;
 	}
 	public String getDx_long() {
 		return dx_long;
 	}
-	public void setDx_long(String dx_long) {
+	public void setDx_long(final String dx_long) {
 		this.dx_long = dx_long;
 	}
 	public String getDx_name() {
 		return dx_name;
 	}
-	public void setDx_name(String dx_name) {
+	public void setDx_name(final String dx_name) {
 		this.dx_name = dx_name;
 	}
 	public String getDx_prefix() {
 		return dx_prefix;
 	}
-	public void setDx_prefix(String dx_prefix) {
+	public void setDx_prefix(final String dx_prefix) {
 		this.dx_prefix = dx_prefix;
 	}
 	public String getSpotter_cont() {
 		return spotter_cont;
 	}
-	public void setSpotter_cont(String spotter_cont) {
+	public void setSpotter_cont(final String spotter_cont) {
 		this.spotter_cont = spotter_cont;
 	}
 	public String getSpotter_cqz() {
 		return spotter_cqz;
 	}
-	public void setSpotter_cqz(String spotter_cqz) {
+	public void setSpotter_cqz(final String spotter_cqz) {
 		this.spotter_cqz = spotter_cqz;
 	}
 	public String getSpotter_ituz() {
 		return spotter_ituz;
 	}
-	public void setSpotter_ituz(String spotter_ituz) {
+	public void setSpotter_ituz(final String spotter_ituz) {
 		this.spotter_ituz = spotter_ituz;
 	}
 	public String getSpotter_lat() {
 		return spotter_lat;
 	}
-	public void setSpotter_lat(String spotter_lat) {
+	public void setSpotter_lat(final String spotter_lat) {
 		this.spotter_lat = spotter_lat;
 	}
 	public String getSpotter_long() {
 		return spotter_long;
 	}
-	public void setSpotter_long(String spotter_long) {
+	public void setSpotter_long(final String spotter_long) {
 		this.spotter_long = spotter_long;
 	}
 	public String getSpotter_name() {
 		return spotter_name;
 	}
-	public void setSpotter_name(String spotter_name) {
+	public void setSpotter_name(final String spotter_name) {
 		this.spotter_name = spotter_name;
 	}
 	public String getSpotter_prefix() {
 		return spotter_prefix;
 	}
-	public void setSpotter_prefix(String spotter_prefix) {
+	public void setSpotter_prefix(final String spotter_prefix) {
 		this.spotter_prefix = spotter_prefix;
 	}
 	public String getNr() {
 		return nr;
 	}
-	public void setNr(String nr) {
+	public void setNr(final String nr) {
 		this.nr = nr;
 	}
 	public String getBand() {
 		return band;
 	}
-	public void setBand(String band) {
+	public void setBand(final String band) {
 		this.band = band;
 	}
 	public String getCall() {
 		return call;
 	}
-	public void setCall(String call) {
+	public void setCall(final String call) {
 		this.call = call;
 	}
 	public String getComment() {
 		return comment;
 	}
-	public void setComment(String comment) {
+	public void setComment(final String comment) {
 		this.comment = comment;
 	}
 	public String getDxcall() {
 		return dxcall;
 	}
-	public void setDxcall(String dxcall) {
+	public void setDxcall(final String dxcall) {
 		this.dxcall = dxcall;
 	}
 	public String getFreq() {
 		return freq;
 	}
-	public void setFreq(String freq) {
+	public void setFreq(final String freq) {
 		this.freq = freq;
 	}
 	public String getTime() {
 		return time;
 	}
-	public void setTime(String time) {
+	public void setTime(final String time) {
 		this.time = time;
 	}
 	
@@ -195,13 +195,13 @@ public class ClusterRecord {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
 	}
 	
-	public static ClusterRecord dbRecord(final int nr, final String dxcall, final String call, final LocalDateTime when, final int freq, final String comment) {
+	public static ClusterRecord dbRecord(final int nr, final String dxcall, final String call, final LocalDateTime when, final String freq, final String comment) {
 		final ClusterRecord r = new ClusterRecord();
 		r.setNr("" + nr);
 		r.setDxcall(dxcall);
 		r.setCall(call);
 		r.setTime(when.toString());
-		r.setFreq("" + freq);
+		r.setFreq(freq);
 		r.setComment(comment);
 		return r;
 	}

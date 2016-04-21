@@ -46,7 +46,7 @@ public class H2Persister implements Persister {
 				final String dxcall = rs.getString("dxcall");
 				final String call = rs.getString("call");
 				final Timestamp when = rs.getTimestamp("when");
-				final int freq = rs.getInt("freq");
+				final String freq = rs.getString("freq");
 				final String comment = rs.getString("comment");
 				return ClusterRecord.dbRecord(nr, dxcall, call, when.toLocalDateTime(), freq, comment);
 			}
@@ -61,7 +61,7 @@ public class H2Persister implements Persister {
 	private void create() {
 		LOGGER.info("Creating database...");
 		final String[] ddls = new String[] {
-			"CREATE TABLE Spots(nr INT, dxcall VARCHAR(25), call VARCHAR(25), when TIMESTAMP, freq INT, comment VARCHAR(128), tweeted BOOLEAN, PRIMARY KEY(nr))",
+			"CREATE TABLE Spots(nr INT, dxcall VARCHAR(25), call VARCHAR(25), when TIMESTAMP, freq VARCHAR(25), comment VARCHAR(128), tweeted BOOLEAN, PRIMARY KEY(nr))",
 		};
 		for (final String ddl : ddls) {
 			template.getJdbcOperations().execute(ddl);
@@ -90,7 +90,7 @@ public class H2Persister implements Persister {
 				StringUtils.defaultString(record.getDxcall()),
 				StringUtils.defaultString(record.getCall()),
 				StringUtils.defaultString(record.getTime()),
-				Integer.parseInt(record.getFreq()),
+				StringUtils.defaultString(record.getFreq()),
 				StringUtils.defaultString(record.getComment()),
 				false);
 	}

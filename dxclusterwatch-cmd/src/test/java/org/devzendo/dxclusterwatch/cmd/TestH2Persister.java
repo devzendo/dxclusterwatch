@@ -30,10 +30,10 @@ public class TestH2Persister {
 	private File root;
 	private Persister store;
 
-	final ClusterRecord dbRecord1 = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", when(20), 14060, "Hi Matt");
-	final ClusterRecord dbRecord2 = ClusterRecord.dbRecord(2, "GB3IMD", "M0CUV", when(25), 7035, "UP 20");
-	final ClusterRecord dbRecord3 = ClusterRecord.dbRecord(3, "GB3MRS", "G0VAR", when(35), 10118, "VY 73 OM");
-	final ClusterRecord dbRecord4 = ClusterRecord.dbRecord(4, "IY0GM", "F6IIS", when(40), 3580, "Ciao Guglielmo");
+	final ClusterRecord dbRecord1 = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", when(20), "14060", "Hi Matt");
+	final ClusterRecord dbRecord2 = ClusterRecord.dbRecord(2, "GB3IMD", "M0CUV", when(25), "7035", "UP 20");
+	final ClusterRecord dbRecord3 = ClusterRecord.dbRecord(3, "GB3MRS", "G0VAR", when(35), "10118", "VY 73 OM");
+	final ClusterRecord dbRecord4 = ClusterRecord.dbRecord(4, "IY0GM", "F6IIS", when(40), "3580", "Ciao Guglielmo");
 
 	@BeforeClass
 	public static void setupLogging() {
