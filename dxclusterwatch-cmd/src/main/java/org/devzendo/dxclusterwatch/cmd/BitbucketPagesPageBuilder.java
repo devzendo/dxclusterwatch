@@ -107,7 +107,7 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 	@Override
 	public void publishPage() {
 		try {
-			new Execute(config.getSiteRepoPath(), "hg", "commit", "-m", "updated at " + dateFormatGmt.format(new Date()), "index.html").run();
+			new Execute(config.getSiteRepoPath(), "hg", "commit", "-m", "'updated at " + dateFormatGmt.format(new Date()) + "'", "index.html").run();
 			new Execute(config.getSiteRepoPath(), "hg", "push").run();
 		} catch (final RuntimeException re) {
 			LOGGER.warn("Could not publish page: " + re.getMessage());
