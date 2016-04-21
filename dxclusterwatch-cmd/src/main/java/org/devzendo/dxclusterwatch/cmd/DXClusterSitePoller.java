@@ -103,7 +103,7 @@ public class DXClusterSitePoller implements SitePoller {
 			final String upperDXCall = cr.getDxcall().toUpperCase();
 			boolean found = false;
 			for (final String callsign : callsigns) {
-				LOGGER.debug("Does received callsign {} contain requested {}", upperDXCall, callsign);
+				//LOGGER.debug("Does received callsign {} contain requested {}", upperDXCall, callsign);
 				if (upperDXCall.contains(callsign)) {
 					found = true;
 				}
