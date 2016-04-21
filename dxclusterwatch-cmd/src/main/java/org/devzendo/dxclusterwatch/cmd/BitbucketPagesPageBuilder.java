@@ -22,6 +22,8 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 	private final File indexFile;
 
 	private final SimpleDateFormat dateFormatGmt;
+	private final String hg;
+
 
 	public BitbucketPagesPageBuilder(final Config config, final Persister persister) {
 		this.config = config;
@@ -31,6 +33,8 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 		
 		dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+		
+		hg = config.getHgExecutablePath().getAbsolutePath();
 	}
 
 	@Override
@@ -107,8 +111,8 @@ public class BitbucketPagesPageBuilder implements PageBuilder {
 	@Override
 	public void publishPage() {
 		try {
-			new Execute(config.getSiteRepoPath(), "hg", "commit", "-m", "'updated at " + dateFormatGmt.format(new Date()) + "'", "index.html").run();
-			new Execute(config.getSiteRepoPath(), "hg", "push").run();
+			new Execute(config.getSiteRepoPath(), hg, "commit", "-m", "'updated at " + dateFormatGmt.format(new Date()) + "'", "index.html").run();
+			new Execute(config.getSiteRepoPath(), hg, "push").run();
 		} catch (final RuntimeException re) {
 			LOGGER.warn("Could not publish page: " + re.getMessage());
 		}
