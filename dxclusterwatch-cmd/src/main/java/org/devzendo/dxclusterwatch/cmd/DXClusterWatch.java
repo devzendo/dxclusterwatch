@@ -68,11 +68,11 @@ public class DXClusterWatch {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
 					try {
-						LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet);
+						LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet.toDbString());
 						tweeter.tweet(nextRecordToTweet);
 						tweetNumber++;
 						persister.markTweeted(nextRecordToTweet);
-						nextTweet = nowSeconds() + 10L;
+						nextTweet = nowSeconds() + 30L;
 					} catch (final RuntimeException re) {
 						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage());
 					}
