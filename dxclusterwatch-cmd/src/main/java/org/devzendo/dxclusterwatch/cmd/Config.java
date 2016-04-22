@@ -23,6 +23,7 @@ public class Config {
 	private final String consumerSecret;
 	private final String accessToken;
 	private final String accessSecret;
+	private final int maxListingEntries;
 
 	public String getConsumerKey() {
 		return consumerKey;
@@ -65,6 +66,10 @@ public class Config {
 		return tweetSeconds;
 	}
 
+	public int getMaxListingEntries() {
+		return maxListingEntries;
+	}
+
 	public Config(final File prefsFile) {
 		final Properties properties = loadProperties(prefsFile);
 		
@@ -77,6 +82,7 @@ public class Config {
 		consumerSecret = mustBeString("consumerSecret", properties.getProperty("consumerSecret"));
 		accessToken = mustBeString("accessToken", properties.getProperty("accessToken"));
 		accessSecret = mustBeString("accessSecret", properties.getProperty("accessSecret"));
+		maxListingEntries = mustBeInteger("maxListingEntries", properties.getProperty("maxListingEntries"));
 	}
 
 	static String mustBeString(final String propertyName, final String value) {
