@@ -20,7 +20,7 @@ public class Main {
 			
 			final Config config = new Config(prefsFactory.getPrefsFile());
 			final Tweeter tweeter = new Twitter4JTweeter(config);
-			final Persister persister = new H2Persister(prefsFactory.getPrefsDir());
+			final Persister persister = new H2Persister(prefsFactory.getPrefsDir(), config.getMaxListingEntries());
 			try {
 				final PageBuilder pageBuilder = new BitbucketPagesPageBuilder(config, persister);
 				

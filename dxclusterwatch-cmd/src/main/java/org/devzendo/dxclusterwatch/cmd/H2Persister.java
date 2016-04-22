@@ -21,12 +21,16 @@ public class H2Persister implements Persister {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(H2Persister.class);
 
+	private final int maxListingEntries;
 	private final File dbFile;
 	private final SimpleJdbcTemplate template;
 	private final SingleConnectionDataSource dataSource;
 	private final RowMapper<ClusterRecord> rowMapper;
 
-	public H2Persister(final File storeDir) {
+
+	public H2Persister(final File storeDir, final int maxListingEntries) {
+		this.maxListingEntries = maxListingEntries;
+		LOGGER.debug("Limiting listing to {} entries", maxListingEntries);
 		dbFile = new File(storeDir, "dxclusterwatch");
 		final boolean needToCreate = !exists();
 		final String dbURL = "jdbc:h2:" + dbFile.getAbsolutePath();
@@ -137,7 +141,7 @@ public class H2Persister implements Persister {
 
 	@Override
 	public List<ClusterRecord> getRecords() {
-		final String sql = "SELECT * FROM Spots ORDER BY when DESC";
+		final String sql = "SELECT TOP " + maxListingEntries + " * FROM Spots ORDER BY when DESC";
 		return template.query(sql, rowMapper);
 	}
 }
