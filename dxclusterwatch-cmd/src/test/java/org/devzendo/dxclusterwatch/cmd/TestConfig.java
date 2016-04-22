@@ -62,6 +62,37 @@ public class TestConfig {
 		assertThat(set, contains("M0CUV"));
 	}
 
+	
+	@Test
+	public void emptyString() {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'xx'"));
+
+		Config.mustBeString("xx", "");
+	}
+
+	@Test
+	public void spaceString() {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'xx'"));
+
+        Config.mustBeString("xx", " ");
+	}
+
+	@Test
+	public void nullString() {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'xx'"));
+
+        Config.mustBeString("xx", null);
+	}
+
+	@Test
+	public void singleString() {
+		assertThat(Config.mustBeString("xx", "yy"), equalTo("yy"));
+	}
+
+	
 	@Test
 	public void multipleCallsigns() {
 		final Set<String> set = Config.getCallsigns(" m0cuv , xxt832,ff1tr  ");

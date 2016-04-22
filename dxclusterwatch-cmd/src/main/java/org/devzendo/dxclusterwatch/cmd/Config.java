@@ -19,6 +19,27 @@ public class Config {
 	private final int pollMinutes;
 	private final int tweetSeconds;
 	private final File hgExecutablePath;
+	private final String consumerKey;
+	private final String consumerSecret;
+	private final String accessToken;
+	private final String accessSecret;
+
+	public String getConsumerKey() {
+		return consumerKey;
+	}
+
+	public String getConsumerSecret() {
+		return consumerSecret;
+	}
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public String getAccessSecret() {
+		return accessSecret;
+	}
+
 
 	public File getHgExecutablePath() {
 		return hgExecutablePath;
@@ -52,6 +73,18 @@ public class Config {
 		pollMinutes = mustBeInteger("pollMinutes", properties.getProperty("pollMinutes"));
 		tweetSeconds = mustBeInteger("tweetSeconds", properties.getProperty("tweetSeconds"));
 		hgExecutablePath = mustBeExecutablePath("hgExecutablePath", properties.getProperty("hgExecutablePath"));
+		consumerKey = mustBeString("consumerKey", properties.getProperty("consumerKey"));
+		consumerSecret = mustBeString("consumerSecret", properties.getProperty("consumerSecret"));
+		accessToken = mustBeString("accessToken", properties.getProperty("accessToken"));
+		accessSecret = mustBeString("accessSecret", properties.getProperty("accessSecret"));
+	}
+
+	static String mustBeString(final String propertyName, final String value) {
+		LOGGER.debug("Checking property {} string {}", propertyName, value);
+		if (value == null || value.trim().isEmpty()) {
+			throw new IllegalArgumentException("Empty property '" + propertyName + "'");
+		}
+		return value.trim();
 	}
 
 	static File mustBePath(final String propertyName, final String path) {
