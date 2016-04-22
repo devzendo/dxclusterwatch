@@ -1,9 +1,7 @@
 package org.devzendo.dxclusterwatch.cmd;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,16 +60,24 @@ public class Twitter4JTweeter implements Tweeter {
 		sb.append(" at ");
 		sb.append(toTime(record.getTime()));
 		final String comment = StringUtils.defaultString(record.getComment()).trim();
-		if (!comment.isEmpty()) {
-			final int len = sb.toString().length();
-			final int remaining = 140 - len - 3;
-			if (remaining > 0) {
-				sb.append(" \"");
-				sb.append(comment.substring(0, Math.min(remaining, comment.length())));
-				sb.append("\"");
-			}
+		final String postSoFar = sb.toString();
+		final StringBuilder out = new StringBuilder();
+		out.append(postSoFar);
+		
+		// only bother appending a comment if there is one, and I have at least 4 chars left
+		// space quote ... quote
+		final int charsRemaining = 140 - postSoFar.length();
+		if (!comment.isEmpty() && charsRemaining > 4) {
+			
+			LOGGER.debug("post len w/o comment {} remaining {} comment len {}", postSoFar.length(), charsRemaining, comment.length());
+			final int maxCommentLength = charsRemaining - 4;
+			out.append(" \"");
+			out.append(comment.substring(0, Math.min(maxCommentLength, comment.length())));
+			out.append("\"");
 		}
-		return sb.toString();
+		// backstop length limiting...
+		final String outString = out.toString();
+		return outString.substring(0, Math.min(140, outString.length()));
 	}
 
 	public static String toTime(final String time) {

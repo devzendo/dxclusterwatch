@@ -3,14 +3,11 @@ package org.devzendo.dxclusterwatch.cmd;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.Assert.*;
 
 import java.sql.Timestamp;
 
 import org.apache.log4j.BasicConfigurator;
 import org.devzendo.commoncode.prefs.PrefsFactory;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,7 +18,8 @@ public class TestTwitter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestTwitter.class);
 
 	private static Tweeter tweeter;
-	private static final ClusterRecord dbRecord = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", new Timestamp(System.currentTimeMillis()), "14060", "This tweet was posted by an integration test.");
+	private static long time = 1461324273856L; // 12:24 on 22/04/2016
+	private static final ClusterRecord dbRecord = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", new Timestamp(time), "14060", "This tweet was posted by an integration test.");
 
 	@BeforeClass
 	public static void setupLogging() {
@@ -54,9 +52,86 @@ public class TestTwitter {
 	}
 	
 	@Test
-	public void postMessageLooksRight() throws Exception {
-		final String post = Twitter4JTweeter.convertToTweet(dbRecord);
-		LOGGER.info("Post [{}]", post);
-		MatcherAssert.assertThat(post.length(), lessThanOrEqualTo(140));
+	public void postMessageWithNormalComment() throws Exception {
+		final String post = tweetPost(dbRecord);
+		assertThat(post, equalTo("GB4IMD heard on 14060 by M0CUV at 12:24 \"This tweet was posted by an integration test.\""));
 	}
+	
+	@Test
+	public void postNoComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", new Timestamp(time), "14060", ""));
+		assertThat(post, equalTo("GB4IMD heard on 14060 by M0CUV at 12:24"));
+	}
+
+
+	@Test
+	public void justFitsInWithoutComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-12345678901",
+				"M0CUV", new Timestamp(time), "14060", ""));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-12345678901 heard on 14060 by M0CUV at 12:24"));
+	}
+
+	@Test
+	public void justStartsToOverflowWithoutComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-123456789012",
+				"M0CUV", new Timestamp(time), "14060", ""));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-123456789012 heard on 14060 by M0CUV at 12:2"));
+	}
+
+	@Test
+	public void overflowWithoutComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-would-push-the-post-length-over-the-140-character-limit-but-gets-truncated",
+				"M0CUV", new Timestamp(time), "14060", ""));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-would-push-the-post-length-over-the-140-character-limit-but-gets-truncated heard on 14060 by M0CUV at 1"));
+	}
+
+	@Test
+	public void justFitsInWithComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-123456",
+				"M0CUV", new Timestamp(time), "14060", "x"));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-123456 heard on 14060 by M0CUV at 12:24 \"x\""));
+	}
+
+	@Test
+	public void overflowWithComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-1234567",
+				"M0CUV", new Timestamp(time), "14060", "x"));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit-1234567 heard on 14060 by M0CUV at 12:24"));
+	}
+
+	@Test
+	public void justFitsInWithLongerComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit",
+				"M0CUV", new Timestamp(time), "14060", "x1234567"));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit heard on 14060 by M0CUV at 12:24 \"x1234567\""));
+	}
+
+	@Test
+	public void truncatedComment() throws Exception {
+		final String post = tweetPost(ClusterRecord.dbRecord(1,
+				"GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit",
+				"M0CUV", new Timestamp(time), "14060", "x1234567890"));
+		//                        12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+		assertThat(post, equalTo("GB4IMD-a-ridiculously-long-name-that-almost-pushes-the-post-length-over-the-140-character-limit heard on 14060 by M0CUV at 12:24 \"x1234567\""));
+	}
+
+	private String tweetPost(final ClusterRecord record) {
+		final String post = Twitter4JTweeter.convertToTweet(record);
+		LOGGER.info("Post [{}]", post);
+		assertThat(post.length(), lessThanOrEqualTo(140));
+		return post;
+	}
+
 }
