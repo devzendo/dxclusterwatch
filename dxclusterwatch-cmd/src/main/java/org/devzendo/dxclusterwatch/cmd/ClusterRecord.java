@@ -2,6 +2,7 @@ package org.devzendo.dxclusterwatch.cmd;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -198,11 +199,11 @@ public class ClusterRecord {
 	public static ClusterRecord dbRecord(final int nr, final String dxcall, final String call, final Timestamp when, final String freq, final String comment) {
 		final ClusterRecord r = new ClusterRecord();
 		r.setNr("" + nr);
-		r.setDxcall(dxcall);
-		r.setCall(call);
-		r.setTime(when.toString());
-		r.setFreq(freq);
-		r.setComment(comment);
+		r.setDxcall(StringUtils.defaultString(dxcall));
+		r.setCall(StringUtils.defaultString(call));
+		r.setTime(StringUtils.defaultString(when.toString()));
+		r.setFreq(StringUtils.defaultString(freq));
+		r.setComment(StringUtils.defaultString(comment));
 		return r;
 	}
 	
