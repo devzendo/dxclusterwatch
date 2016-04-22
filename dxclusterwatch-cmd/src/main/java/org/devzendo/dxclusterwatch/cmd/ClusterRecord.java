@@ -1,6 +1,6 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -195,7 +195,7 @@ public class ClusterRecord {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
 	}
 	
-	public static ClusterRecord dbRecord(final int nr, final String dxcall, final String call, final LocalDateTime when, final String freq, final String comment) {
+	public static ClusterRecord dbRecord(final int nr, final String dxcall, final String call, final Timestamp when, final String freq, final String comment) {
 		final ClusterRecord r = new ClusterRecord();
 		r.setNr("" + nr);
 		r.setDxcall(dxcall);

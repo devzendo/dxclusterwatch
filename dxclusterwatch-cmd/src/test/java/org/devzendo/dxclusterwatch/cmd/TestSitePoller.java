@@ -52,7 +52,7 @@ public class TestSitePoller {
 	public void filterNoCallsigns() throws JsonParseException, JsonMappingException, IOException {		
 		final ClusterRecord[] records = getRecordsFromSampleFile();
 
-		final ClusterRecord[] filtered = DXClusterSitePoller.filterCallsigns(Collections.emptySet(), records);
+		final ClusterRecord[] filtered = DXClusterSitePoller.filterCallsigns(Collections.<String>emptySet(), records);
 		assertThat(filtered.length, equalTo(0));
 	}
 

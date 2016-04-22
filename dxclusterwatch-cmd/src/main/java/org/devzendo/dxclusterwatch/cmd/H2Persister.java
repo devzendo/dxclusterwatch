@@ -48,7 +48,7 @@ public class H2Persister implements Persister {
 				final Timestamp when = rs.getTimestamp("when");
 				final String freq = rs.getString("freq");
 				final String comment = rs.getString("comment");
-				return ClusterRecord.dbRecord(nr, dxcall, call, when.toLocalDateTime(), freq, comment);
+				return ClusterRecord.dbRecord(nr, dxcall, call, when, freq, comment);
 			}
 		};
 

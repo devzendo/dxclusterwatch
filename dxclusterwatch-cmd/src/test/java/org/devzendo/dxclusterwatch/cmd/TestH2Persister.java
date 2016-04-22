@@ -7,12 +7,10 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.h2.engine.ExistenceChecker;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -119,8 +117,8 @@ public class TestH2Persister {
 		assertThat(records.get(3).getNr(), equalTo("1"));
 	}
 
-	private LocalDateTime when(final long secondsFromEpoch) {
-		final LocalDateTime when = LocalDateTime.ofEpochSecond(secondsFromEpoch, 0, ZoneOffset.UTC);
+	private Timestamp when(final long secondsFromEpoch) {
+		final Timestamp when = new Timestamp(secondsFromEpoch * 1000);
 		return when;
 	}
 }
