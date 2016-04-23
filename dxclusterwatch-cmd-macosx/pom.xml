@@ -9,7 +9,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<groupId>org.devzendo</groupId>
 		<artifactId>dxclusterwatch-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 		<relativePath>../</relativePath>
 	</parent>
 
