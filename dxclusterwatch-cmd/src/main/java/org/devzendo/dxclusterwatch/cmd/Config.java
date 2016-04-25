@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,6 +15,9 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
+	private static final Pattern TRUE_PATTERN = Pattern.compile("^(true|yes)$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern FALSE_PATTERN = Pattern.compile("^(false|no)$", Pattern.CASE_INSENSITIVE);
+
 	private final Set<String> callsigns;
 	private final File siteRepoPath;
 	private final int pollMinutes;
@@ -24,6 +28,9 @@ public class Config {
 	private final String accessToken;
 	private final String accessSecret;
 	private final int maxListingEntries;
+	private final boolean enableFeedReading;
+	private final boolean enablePageUpdating;
+	private final boolean enableTweeting;
 
 	public String getConsumerKey() {
 		return consumerKey;
@@ -70,6 +77,18 @@ public class Config {
 		return maxListingEntries;
 	}
 
+	public boolean isEnableFeedReading() {
+		return enableFeedReading;
+	}
+
+	public boolean isEnablePageUpdating() {
+		return enablePageUpdating;
+	}
+
+	public boolean isEnableTweeting() {
+		return enableTweeting;
+	}
+
 	public Config(final File prefsFile) {
 		final Properties properties = loadProperties(prefsFile);
 		
@@ -83,6 +102,9 @@ public class Config {
 		accessToken = mustBeString("accessToken", properties.getProperty("accessToken"));
 		accessSecret = mustBeString("accessSecret", properties.getProperty("accessSecret"));
 		maxListingEntries = mustBeInteger("maxListingEntries", properties.getProperty("maxListingEntries"));
+		enableFeedReading = mustBeBoolean("enableFeedReading", properties.getProperty("enableFeedReading"));
+		enablePageUpdating = mustBeBoolean("enablePageUpdating", properties.getProperty("enablePageUpdating"));
+		enableTweeting = mustBeBoolean("enableTweeting", properties.getProperty("enableTweeting"));
 	}
 
 	static String mustBeString(final String propertyName, final String value) {
@@ -133,6 +155,20 @@ public class Config {
 		} catch (final NumberFormatException nfe) {
 			throw new IllegalArgumentException(intText + " is not an integer");
 		}
+	}
+
+	static boolean mustBeBoolean(final String propertyName, final String boolText) {
+		LOGGER.debug("Checking property {} boolean {}", propertyName, boolText);
+		if (boolText == null || boolText.trim().isEmpty()) {
+			throw new IllegalArgumentException("Empty property '" + propertyName + "'");
+		}
+		if (TRUE_PATTERN.matcher(boolText).matches()) {
+			return true;
+		}
+		if (FALSE_PATTERN.matcher(boolText).matches()) {
+			return false;
+		}
+		throw new IllegalArgumentException(boolText + " is not a boolean");
 	}
 
 	static Set<String> getCallsigns(final String prop) {

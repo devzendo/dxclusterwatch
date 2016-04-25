@@ -237,4 +237,49 @@ public class TestConfig {
 
 		Config.mustBeInteger("pollMinutes", "ffs");
 	}
+
+
+	@Test
+	public void nullBoolean() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'enable'"));
+
+		Config.mustBeBoolean("enable", null);
+	}
+
+	@Test
+	public void emptyBoolean() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'enable'"));
+
+		Config.mustBeBoolean("enable", "");
+	}
+
+	@Test
+	public void notABoolean() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("ffs is not a boolean"));
+
+		Config.mustBeBoolean("enable", "ffs");
+	}
+
+	@Test
+	public void trueBoolean() throws Exception {
+		assertThat(Config.mustBeBoolean("enable", "TRuE"), equalTo(true));
+		assertThat(Config.mustBeBoolean("enable", "true"), equalTo(true));
+		assertThat(Config.mustBeBoolean("enable", "TRUE"), equalTo(true));
+		assertThat(Config.mustBeBoolean("enable", "yes"), equalTo(true));
+		assertThat(Config.mustBeBoolean("enable", "Yes"), equalTo(true));
+		assertThat(Config.mustBeBoolean("enable", "YES"), equalTo(true));
+	}
+
+	@Test
+	public void falseBoolean() throws Exception {
+		assertThat(Config.mustBeBoolean("enable", "FaLsE"), equalTo(false));
+		assertThat(Config.mustBeBoolean("enable", "false"), equalTo(false));
+		assertThat(Config.mustBeBoolean("enable", "FALSE"), equalTo(false));
+		assertThat(Config.mustBeBoolean("enable", "no"), equalTo(false));
+		assertThat(Config.mustBeBoolean("enable", "No"), equalTo(false));
+		assertThat(Config.mustBeBoolean("enable", "NO"), equalTo(false));
+	}
 }
