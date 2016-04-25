@@ -21,3 +21,36 @@ consumerSecret= (twitter API Oauth consumer secret)
 accessToken= (twitter API access token)
 accessSecret= (twitter API access secret)
 maxListingEntries= (maximum size of the report listing; most recent listings first, but only up to this many)
+
+
+Things to change for next run:
+1) watch the properties file for configuration changes, and apply them dynamically without having to restart.
+2) add crowbars: disable flags in the config for
+   a) reading from the API
+   b) updating the webpage
+   c) posting to twitter
+3) fix the init.d script to actually stop the process (not sure why this didn't work)
+4) package as .deb
+5) add a deploy-to-host script; no need to go the full Ansible here... 
+6) make twitter content better; not just an ongoing unprocessed stream of data from the cluster.
+   possibly:
+   tweet every N minutes if any new IMD callsigns heard with their frequencies, and if any have changed
+   frequencies (possibly show all frequencies a callsign has been heard on, in the last 15 mins?)
+   1305: GB8MD on 14074,10118,7101; CW2IMD on 7109,3582
+   i.e. maintain a set of active stations, their frequencies. stations and frequencies can come and go
+   in those sets; tweet the changes. keep tweets short, possibly without comments and who heard them.
+   
+7) similar content for the web page, but can show more info.
+   1305: GB8MD on 14074 by M0CUV "Receive-only Marconi station between 1914-1921"
+                  10118 by G7AGI "Solid copy, OM"
+                  7011 by G0POT "Fine QRS QSO, OM!"
+         CW2IMD on 7109 by IY0ABC "Fortissimo!"
+                   3582 by W1ALU "Great event station"
+
+8) also a map of all stations and the frequencies they've been heard on (with last heard time for that frequency)
+9) go over the log file for the day, downgrade useless diagnostics.
+10) reconstruct the data feed from log.
+                   
+                   
+                   
+   
