@@ -45,8 +45,8 @@ public class DXClusterWatch {
 	public void start() {
 		long backoffCount = 0;
 		long nextPollTime = nowSeconds(); // force the first poll.
-		long nextTweet = nowSeconds(); // force the first tweet to happen now
-		int tweetNumber = 1;
+		final long nextTweet = nowSeconds(); // force the first tweet to happen now
+		final int tweetNumber = 1;
 		int pageRebuildNumber = 1;
 		LOGGER.info("Starting....");
 		while (running.get()) {
@@ -74,7 +74,7 @@ public class DXClusterWatch {
 					LOGGER.warn("Could not poll cluster: " + re.getMessage() + ": next attempt in " + secs + " seconds");
 				}
 			}
-			
+			/*
 			if (nowSeconds() >= nextTweet) {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
@@ -88,7 +88,7 @@ public class DXClusterWatch {
 						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage());
 					}
 				}
-			}
+			}*/
 
 			ThreadUtils.waitNoInterruption(1000L);
 		}
