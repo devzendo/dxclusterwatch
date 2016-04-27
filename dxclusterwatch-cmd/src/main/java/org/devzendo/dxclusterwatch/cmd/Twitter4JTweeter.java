@@ -9,47 +9,29 @@ import org.slf4j.LoggerFactory;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
-import twitter4j.conf.Configuration;
-import twitter4j.conf.ConfigurationBuilder;
 
 public class Twitter4JTweeter implements Tweeter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Twitter4JTweeter.class);
-	private final String consumerKey;
-	private final String consumerSecret;
-	private final String accessToken;
-	private final String accessSecret;
-	private final Twitter twitter;
 
-	
+	private final ConfiguredTwitterFactory configuredTwitterFactory;
+
 	public Twitter4JTweeter(final Config config) {
-		consumerKey = config.getConsumerKey();
-		consumerSecret = config.getConsumerSecret();
-		accessToken = config.getAccessToken();
-		accessSecret = config.getAccessSecret();
-		
-		final ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-		configurationBuilder.setOAuthAccessToken(accessToken);
-		configurationBuilder.setOAuthAccessTokenSecret(accessSecret);
-		configurationBuilder.setOAuthConsumerKey(consumerKey);
-		configurationBuilder.setOAuthConsumerSecret(consumerSecret);
-		final Configuration configuration = configurationBuilder.build();
-		final TwitterFactory twitterFactory = new TwitterFactory(configuration);
-		twitter = twitterFactory.getInstance();
+		configuredTwitterFactory = new ConfiguredTwitterFactory(config);
 	}
-	
+
 	@Override
 	public void tweet(final ClusterRecord recordToTweet) {
 		final String post = convertToTweet(recordToTweet);
 		LOGGER.debug("Tweeting '{}'", post);
 		try {
+			final Twitter twitter = configuredTwitterFactory.createTwitter();
 			twitter.updateStatus(post);
 		} catch (final TwitterException e) {
 			LOGGER.warn("Could not tweet '{}': {}", post, e);
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static final String convertToTweet(final ClusterRecord record) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(record.getDxcall());
@@ -63,13 +45,15 @@ public class Twitter4JTweeter implements Tweeter {
 		final String postSoFar = sb.toString();
 		final StringBuilder out = new StringBuilder();
 		out.append(postSoFar);
-		
-		// only bother appending a comment if there is one, and I have at least 4 chars left
+
+		// only bother appending a comment if there is one, and I have at least
+		// 4 chars left
 		// space quote ... quote
 		final int charsRemaining = 140 - postSoFar.length();
 		if (!comment.isEmpty() && charsRemaining > 4) {
-			
-			LOGGER.debug("post len w/o comment {} remaining {} comment len {}", postSoFar.length(), charsRemaining, comment.length());
+
+			LOGGER.debug("post len w/o comment {} remaining {} comment len {}", postSoFar.length(), charsRemaining,
+					comment.length());
 			final int maxCommentLength = charsRemaining - 4;
 			out.append(" \"");
 			out.append(comment.substring(0, Math.min(maxCommentLength, comment.length())));
