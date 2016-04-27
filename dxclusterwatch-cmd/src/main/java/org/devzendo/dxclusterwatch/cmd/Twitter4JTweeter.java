@@ -22,7 +22,7 @@ public class Twitter4JTweeter implements Tweeter {
 	private final Twitter twitter;
 
 	
-	public Twitter4JTweeter(final Config config) {
+	public Twitter4JTweeter(final PropertiesConfig config) {
 		consumerKey = config.getConsumerKey();
 		consumerSecret = config.getConsumerSecret();
 		accessToken = config.getAccessToken();

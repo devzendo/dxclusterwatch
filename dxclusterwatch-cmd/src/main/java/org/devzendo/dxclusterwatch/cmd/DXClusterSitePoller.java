@@ -30,9 +30,9 @@ public class DXClusterSitePoller implements SitePoller {
 	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterSitePoller.class);
 	private final Set<String> callsigns;
 	private final WebResource webResource;
-	private final Config config;
+	private final PropertiesConfig config;
 
-	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Set<String> callsigns, final Config config) {
+	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Set<String> callsigns, final PropertiesConfig config) {
 		this.callsigns = callsigns;
 		this.config = config;
 		try {

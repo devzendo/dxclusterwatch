@@ -37,7 +37,7 @@ public class TestTwitter {
 		}
 
 		// TODO this relies on the deployment's config - needs to be test-local.
-		final Config config = new Config(prefsFactory.getPrefsFile());
+		final PropertiesConfig config = new PropertiesConfig(prefsFactory.getPrefsFile());
 		tweeter = new Twitter4JTweeter(config);
 	}
 	

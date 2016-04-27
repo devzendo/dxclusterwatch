@@ -42,22 +42,22 @@ public class TestConfig {
 
 	@Test
 	public void emptyCallsigns() {
-		assertThat(Config.getCallsigns(""), empty());
+		assertThat(PropertiesConfig.getCallsigns(""), empty());
 	}
 
 	@Test
 	public void spaceCallsigns() {
-		assertThat(Config.getCallsigns(" "), empty());
+		assertThat(PropertiesConfig.getCallsigns(" "), empty());
 	}
 
 	@Test
 	public void nullCallsigns() {
-		assertThat(Config.getCallsigns(null), empty());
+		assertThat(PropertiesConfig.getCallsigns(null), empty());
 	}
 
 	@Test
 	public void singleCallsigns() {
-		final Set<String> set = Config.getCallsigns("m0cuv");
+		final Set<String> set = PropertiesConfig.getCallsigns("m0cuv");
 		assertThat(set, hasSize(1));
 		assertThat(set, contains("M0CUV"));
 	}
@@ -68,7 +68,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'xx'"));
 
-		Config.mustBeString("xx", "");
+		PropertiesConfig.mustBeString("xx", "");
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'xx'"));
 
-        Config.mustBeString("xx", " ");
+        PropertiesConfig.mustBeString("xx", " ");
 	}
 
 	@Test
@@ -84,18 +84,18 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'xx'"));
 
-        Config.mustBeString("xx", null);
+        PropertiesConfig.mustBeString("xx", null);
 	}
 
 	@Test
 	public void singleString() {
-		assertThat(Config.mustBeString("xx", "yy"), equalTo("yy"));
+		assertThat(PropertiesConfig.mustBeString("xx", "yy"), equalTo("yy"));
 	}
 
 	
 	@Test
 	public void multipleCallsigns() {
-		final Set<String> set = Config.getCallsigns(" m0cuv , xxt832,ff1tr  ");
+		final Set<String> set = PropertiesConfig.getCallsigns(" m0cuv , xxt832,ff1tr  ");
 		assertThat(set, hasSize(3));
 		assertThat(set, containsInAnyOrder("M0CUV", "XXT832", "FF1TR"));
 	}
@@ -103,7 +103,7 @@ public class TestConfig {
 	@Test
 	public void existentPath() throws Exception {
 		assertThat(root.exists(), equalTo(true));
-		Config.mustBePath("siteRepoPath", root.getAbsolutePath());
+		PropertiesConfig.mustBePath("siteRepoPath", root.getAbsolutePath());
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'siteRepoPath'"));
 
-		Config.mustBePath("siteRepoPath", "");
+		PropertiesConfig.mustBePath("siteRepoPath", "");
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'siteRepoPath'"));
 
-		Config.mustBePath("siteRepoPath", null);
+		PropertiesConfig.mustBePath("siteRepoPath", null);
 	}
 
 	@Test
@@ -130,7 +130,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("nonexistent directory does not exist"));
 
-		Config.mustBePath("siteRepoPath", nonExistentPath.getPath());
+		PropertiesConfig.mustBePath("siteRepoPath", nonExistentPath.getPath());
 	}
 
 	@Test
@@ -146,13 +146,13 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("nonexistent is a file but should be a directory"));
 
-		Config.mustBePath("siteRepoPath", file.getAbsolutePath());
+		PropertiesConfig.mustBePath("siteRepoPath", file.getAbsolutePath());
 	}
 
 	@Test
 	public void existentExecutablePath() throws Exception {
 		assertThat(root.exists(), equalTo(true));
-		Config.mustBeExecutablePath("hgExecutablePath", root.getAbsolutePath());
+		PropertiesConfig.mustBeExecutablePath("hgExecutablePath", root.getAbsolutePath());
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'hgExecutablePath'"));
 
-		Config.mustBeExecutablePath("hgExecutablePath", "");
+		PropertiesConfig.mustBeExecutablePath("hgExecutablePath", "");
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'hgExecutablePath'"));
 
-		Config.mustBeExecutablePath("hgExecutablePath", null);
+		PropertiesConfig.mustBeExecutablePath("hgExecutablePath", null);
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("nonexistent executable does not exist"));
 
-		Config.mustBeExecutablePath("hgExecutablePath", nonExistentPath.getPath());
+		PropertiesConfig.mustBeExecutablePath("hgExecutablePath", nonExistentPath.getPath());
 	}
 
 	@Test
@@ -196,7 +196,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("somefile is not executable"));
 
-		Config.mustBeExecutablePath("hgExecutablePath", file.getAbsolutePath());
+		PropertiesConfig.mustBeExecutablePath("hgExecutablePath", file.getAbsolutePath());
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class TestConfig {
 		assertThat(file.isFile(), equalTo(true));
 		assertThat(file.canExecute(), equalTo(true));
 
-		Config.mustBeExecutablePath("hgExecutablePath", file.getAbsolutePath());
+		PropertiesConfig.mustBeExecutablePath("hgExecutablePath", file.getAbsolutePath());
 	}
 	
 	@Test
@@ -219,7 +219,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'pollMinutes'"));
 
-		Config.mustBeInteger("pollMinutes", null);
+		PropertiesConfig.mustBeInteger("pollMinutes", null);
 	}
 
 	@Test
@@ -227,7 +227,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'pollMinutes'"));
 
-		Config.mustBeInteger("pollMinutes", "");
+		PropertiesConfig.mustBeInteger("pollMinutes", "");
 	}
 
 	@Test
@@ -235,7 +235,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("ffs is not an integer"));
 
-		Config.mustBeInteger("pollMinutes", "ffs");
+		PropertiesConfig.mustBeInteger("pollMinutes", "ffs");
 	}
 
 
@@ -244,7 +244,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'enable'"));
 
-		Config.mustBeBoolean("enable", null);
+		PropertiesConfig.mustBeBoolean("enable", null);
 	}
 
 	@Test
@@ -252,7 +252,7 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Empty property 'enable'"));
 
-		Config.mustBeBoolean("enable", "");
+		PropertiesConfig.mustBeBoolean("enable", "");
 	}
 
 	@Test
@@ -260,34 +260,34 @@ public class TestConfig {
 		thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("ffs is not a boolean"));
 
-		Config.mustBeBoolean("enable", "ffs");
+		PropertiesConfig.mustBeBoolean("enable", "ffs");
 	}
 
 	@Test
 	public void trueBoolean() throws Exception {
-		assertThat(Config.mustBeBoolean("enable", "TRuE"), equalTo(true));
-		assertThat(Config.mustBeBoolean("enable", "true"), equalTo(true));
-		assertThat(Config.mustBeBoolean("enable", "TRUE"), equalTo(true));
-		assertThat(Config.mustBeBoolean("enable", "yes"), equalTo(true));
-		assertThat(Config.mustBeBoolean("enable", "Yes"), equalTo(true));
-		assertThat(Config.mustBeBoolean("enable", "YES"), equalTo(true));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "TRuE"), equalTo(true));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "true"), equalTo(true));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "TRUE"), equalTo(true));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "yes"), equalTo(true));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "Yes"), equalTo(true));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "YES"), equalTo(true));
 	}
 
 	@Test
 	public void falseBoolean() throws Exception {
-		assertThat(Config.mustBeBoolean("enable", "FaLsE"), equalTo(false));
-		assertThat(Config.mustBeBoolean("enable", "false"), equalTo(false));
-		assertThat(Config.mustBeBoolean("enable", "FALSE"), equalTo(false));
-		assertThat(Config.mustBeBoolean("enable", "no"), equalTo(false));
-		assertThat(Config.mustBeBoolean("enable", "No"), equalTo(false));
-		assertThat(Config.mustBeBoolean("enable", "NO"), equalTo(false));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "FaLsE"), equalTo(false));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "false"), equalTo(false));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "FALSE"), equalTo(false));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "no"), equalTo(false));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "No"), equalTo(false));
+		assertThat(PropertiesConfig.mustBeBoolean("enable", "NO"), equalTo(false));
 	}
 	
 	@Test
 	public void loadConfig() throws IOException {
 		final boolean feedReadingEnabled = true;
 		final File tempFile = ConfigUnittest.createSampleConfig(root, feedReadingEnabled);
-		final Config config = new Config(tempFile);
+		final PropertiesConfig config = new PropertiesConfig(tempFile);
 		assertThat(config.getCallsigns(), containsInAnyOrder("M0CUV", "2E0SQL"));
 		assertThat(config.getPollMinutes(), equalTo(1));
 		assertThat(config.getTweetSeconds(), equalTo(30));
@@ -307,7 +307,7 @@ public class TestConfig {
 	public void changesToConfigAreAutomaticallyReloaded() throws IOException {
 		final boolean initialFeedReadingEnabled = true;
 		final File tempFile = ConfigUnittest.createSampleConfig(root, initialFeedReadingEnabled);
-		final Config config = new Config(tempFile);
+		final PropertiesConfig config = new PropertiesConfig(tempFile);
 		assertThat(config.isFeedReadingEnabled(), equalTo(initialFeedReadingEnabled));
 
 		// need to leave a few seconds for file modification time change to be discernible

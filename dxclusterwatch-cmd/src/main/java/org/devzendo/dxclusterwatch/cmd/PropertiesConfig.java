@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Config {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
+public class PropertiesConfig {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfig.class);
 	private static final Pattern TRUE_PATTERN = Pattern.compile("^(true|yes)$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern FALSE_PATTERN = Pattern.compile("^(false|no)$", Pattern.CASE_INSENSITIVE);
 
@@ -39,7 +39,7 @@ public class Config {
 		return LOGGER;
 	}
 
-	public Config(final File prefsFile) {
+	public PropertiesConfig(final File prefsFile) {
 		this.prefsFile = prefsFile;
 		readConfigurationFromPropertiesFile();
 	}
