@@ -300,9 +300,9 @@ public class TestConfig {
 		assertThat(config.getAccessToken(), equalTo("123abc"));
 		assertThat(config.getAccessSecret(), equalTo("def987"));
 		assertThat(config.getMaxListingEntries(), equalTo(20));
-		assertThat(config.isEnableFeedReading(), equalTo(feedReadingEnabled));
-		assertThat(config.isEnablePageUpdating(), equalTo(true));
-		assertThat(config.isEnableTweeting(), equalTo(false));;
+		assertThat(config.isFeedReadingEnabled(), equalTo(feedReadingEnabled));
+		assertThat(config.isPageUpdatingEnabled(), equalTo(true));
+		assertThat(config.isTweetingEnable(), equalTo(false));;
 	}
 
 	@Test
@@ -310,7 +310,7 @@ public class TestConfig {
 		final boolean initialFeedReadingEnabled = true;
 		final File tempFile = createSampleConfig(root, initialFeedReadingEnabled);
 		final Config config = new Config(tempFile);
-		assertThat(config.isEnableFeedReading(), equalTo(initialFeedReadingEnabled));
+		assertThat(config.isFeedReadingEnabled(), equalTo(initialFeedReadingEnabled));
 
 		// need to leave a few seconds for file modification time change to be discernible
 		ThreadUtils.waitNoInterruption(2000);
@@ -318,7 +318,7 @@ public class TestConfig {
 		final boolean newFeedReadingEnabled = false;
 		createSampleConfig(root, newFeedReadingEnabled );
 		
-		assertThat(config.isEnableFeedReading(), equalTo(newFeedReadingEnabled));
+		assertThat(config.isFeedReadingEnabled(), equalTo(newFeedReadingEnabled));
 	}
 
 	private File createSampleConfig(final File dir, final boolean feedReadingEnabled) throws IOException {

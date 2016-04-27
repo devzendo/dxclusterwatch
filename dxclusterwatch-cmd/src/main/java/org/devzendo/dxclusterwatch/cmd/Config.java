@@ -94,17 +94,17 @@ public class Config {
 		return maxListingEntries;
 	}
 
-	public boolean isEnableFeedReading() {
+	public boolean isFeedReadingEnabled() {
 		readConfigurationFromPropertiesFile();
 		return enableFeedReading;
 	}
 
-	public boolean isEnablePageUpdating() {
+	public boolean isPageUpdatingEnabled() {
 		readConfigurationFromPropertiesFile();
 		return enablePageUpdating;
 	}
 
-	public boolean isEnableTweeting() {
+	public boolean isTweetingEnable() {
 		readConfigurationFromPropertiesFile();
 		return enableTweeting;
 	}
