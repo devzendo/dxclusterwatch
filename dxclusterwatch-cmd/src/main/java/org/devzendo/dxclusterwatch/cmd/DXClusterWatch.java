@@ -15,19 +15,18 @@ public class DXClusterWatch {
 	private final PageBuilder pageBuilder;
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
-	private final int pollSeconds;
 	private final int tweetSeconds;
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
+	private final Config config;
 
 
 	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
+		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
-		final int pollMinutes = config.getPollMinutes();
-		pollSeconds = 60 * pollMinutes;
 		tweetSeconds = config.getTweetSeconds();
 		final Set<String> callsigns = config.getCallsigns();
 		if (callsigns.isEmpty()) {
@@ -50,12 +49,14 @@ public class DXClusterWatch {
 		int pageRebuildNumber = 1;
 		LOGGER.info("Starting....");
 		while (running.get()) {
+			final int pollSeconds = config.getPollMinutes() * 60;
 			if (nowSeconds() >= nextPollTime) {
 				try {
+					LOGGER.info("Polling DXCluster...");
 					final ClusterRecord[] records = sitePoller.poll();
 					backoffCount = 0;
 					nextPollTime = nowSeconds() + pollSeconds;
-					LOGGER.info("Next poll in " + pollSeconds + " secs");
+					LOGGER.debug("Next poll in " + pollSeconds + " secs");
 					if (records.length > 0) {
 						LOGGER.debug("Persisting " + records.length + " records");
 						final int newRecords = persister.persistRecords(records);
