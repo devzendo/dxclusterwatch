@@ -41,6 +41,7 @@ public class DXClusterWatch {
 	
 	public void start() {
 		long backoffCount = 0;
+		long tweetBackoffCount = 0;
 		long nextPollTime = nowSeconds(); // force the first poll.
 		long nextTweet = nowSeconds(); // force the first tweet to happen now
 		int tweetNumber = 1;
@@ -81,11 +82,15 @@ public class DXClusterWatch {
 					try {
 						LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet.toDbString());
 						tweeter.tweet(nextRecordToTweet);
+						tweetBackoffCount = 0;
 						tweetNumber++;
 						persister.markTweeted(nextRecordToTweet);
 						nextTweet = nowSeconds() + tweetSeconds;
 					} catch (final RuntimeException re) {
-						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage());
+						tweetBackoffCount ++;
+						final long secs = 60 * tweetBackoffCount;
+						nextTweet = nowSeconds() + secs;
+						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage() + ": next attempt in " + secs + " seconds");
 					}
 				}
 			}
