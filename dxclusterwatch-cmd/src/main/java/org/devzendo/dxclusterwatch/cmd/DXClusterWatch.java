@@ -15,7 +15,6 @@ public class DXClusterWatch {
 	private final PageBuilder pageBuilder;
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
-	private final int tweetSeconds;
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -27,7 +26,6 @@ public class DXClusterWatch {
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
-		tweetSeconds = config.getTweetSeconds();
 		final Set<String> callsigns = config.getCallsigns();
 		if (callsigns.isEmpty()) {
 			throw new IllegalStateException("No callsigns configured");
@@ -44,8 +42,8 @@ public class DXClusterWatch {
 	public void start() {
 		long backoffCount = 0;
 		long nextPollTime = nowSeconds(); // force the first poll.
-		final long nextTweet = nowSeconds(); // force the first tweet to happen now
-		final int tweetNumber = 1;
+		long nextTweet = nowSeconds(); // force the first tweet to happen now
+		int tweetNumber = 1;
 		int pageRebuildNumber = 1;
 		LOGGER.info("Starting....");
 		while (running.get()) {
@@ -75,7 +73,8 @@ public class DXClusterWatch {
 					LOGGER.warn("Could not poll cluster: " + re.getMessage() + ": next attempt in " + secs + " seconds");
 				}
 			}
-			/*
+			
+			final int tweetSeconds = config.getTweetSeconds();
 			if (nowSeconds() >= nextTweet) {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
@@ -89,7 +88,7 @@ public class DXClusterWatch {
 						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage());
 					}
 				}
-			}*/
+			}
 
 			ThreadUtils.waitNoInterruption(1000L);
 		}
