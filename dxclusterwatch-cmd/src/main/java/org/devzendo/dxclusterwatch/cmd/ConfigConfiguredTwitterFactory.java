@@ -8,7 +8,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
-public class ConfigConfiguredTwitterFactory {
+public class ConfigConfiguredTwitterFactory implements ConfiguredTwitterFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigConfiguredTwitterFactory.class);
 	private final Config config;
 
@@ -20,6 +20,7 @@ public class ConfigConfiguredTwitterFactory {
 		this.config = config;
 	}
 
+	@Override
 	public Twitter createTwitter() {
 		final String consumerKey = config.getConsumerKey();
 		final String consumerSecret = config.getConsumerSecret();

@@ -13,7 +13,7 @@ import twitter4j.TwitterException;
 public class Twitter4JTweeter implements Tweeter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Twitter4JTweeter.class);
 
-	private final ConfigConfiguredTwitterFactory configuredTwitterFactory;
+	private final ConfiguredTwitterFactory configuredTwitterFactory;
 
 	public Twitter4JTweeter(final Config config) {
 		configuredTwitterFactory = new ConfigConfiguredTwitterFactory(config);
