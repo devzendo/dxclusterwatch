@@ -21,6 +21,9 @@ consumerSecret= (twitter API Oauth consumer secret)
 accessToken= (twitter API access token)
 accessSecret= (twitter API access secret)
 maxListingEntries= (maximum size of the report listing; most recent listings first, but only up to this many)
+enableFeedReading= (whether to enable feed reading, yes/true, no/false)
+enablePageUpdating= (whether to update/publish the page)
+enableTweeting= (whether to enable tweeting)
 
 
 Things to change for next run:
