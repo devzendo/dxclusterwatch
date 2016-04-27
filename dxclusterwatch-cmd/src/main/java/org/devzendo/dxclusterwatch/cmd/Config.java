@@ -5,6 +5,8 @@ import java.util.Set;
 
 public interface Config {
 
+	boolean hasChanged();
+	
 	String getConsumerKey();
 
 	String getConsumerSecret();

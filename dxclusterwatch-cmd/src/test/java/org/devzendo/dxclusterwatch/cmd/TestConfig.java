@@ -288,6 +288,7 @@ public class TestConfig {
 		final boolean feedReadingEnabled = true;
 		final File tempFile = ConfigUnittest.createSampleConfig(root, feedReadingEnabled);
 		final Config config = new PropertiesConfig(tempFile);
+		assertThat(config.hasChanged(), equalTo(false));
 		assertThat(config.getCallsigns(), containsInAnyOrder("M0CUV", "2E0SQL"));
 		assertThat(config.getPollMinutes(), equalTo(1));
 		assertThat(config.getTweetSeconds(), equalTo(30));
@@ -309,6 +310,7 @@ public class TestConfig {
 		final File tempFile = ConfigUnittest.createSampleConfig(root, initialFeedReadingEnabled);
 		final Config config = new PropertiesConfig(tempFile);
 		assertThat(config.isFeedReadingEnabled(), equalTo(initialFeedReadingEnabled));
+		assertThat(config.hasChanged(), equalTo(false));
 
 		// need to leave a few seconds for file modification time change to be discernible
 		ThreadUtils.waitNoInterruption(2000);
@@ -316,6 +318,13 @@ public class TestConfig {
 		final boolean newFeedReadingEnabled = false;
 		ConfigUnittest.createSampleConfig(root, newFeedReadingEnabled );
 		
+		assertThat(config.hasChanged(), equalTo(true));
+		
 		assertThat(config.isFeedReadingEnabled(), equalTo(newFeedReadingEnabled));
+
+		// need to leave a few seconds for (lack of) file modification time change to be discernible
+		ThreadUtils.waitNoInterruption(2000);
+
+		assertThat(config.hasChanged(), equalTo(false));
 	}
 }
