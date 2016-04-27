@@ -18,78 +18,104 @@ public class Config {
 	private static final Pattern TRUE_PATTERN = Pattern.compile("^(true|yes)$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern FALSE_PATTERN = Pattern.compile("^(false|no)$", Pattern.CASE_INSENSITIVE);
 
-	private final Set<String> callsigns;
-	private final File siteRepoPath;
-	private final int pollMinutes;
-	private final int tweetSeconds;
-	private final File hgExecutablePath;
-	private final String consumerKey;
-	private final String consumerSecret;
-	private final String accessToken;
-	private final String accessSecret;
-	private final int maxListingEntries;
-	private final boolean enableFeedReading;
-	private final boolean enablePageUpdating;
-	private final boolean enableTweeting;
+	private final File prefsFile;
 
-	public String getConsumerKey() {
-		return consumerKey;
-	}
-
-	public String getConsumerSecret() {
-		return consumerSecret;
-	}
-
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public String getAccessSecret() {
-		return accessSecret;
-	}
-
-
-	public File getHgExecutablePath() {
-		return hgExecutablePath;
-	}
+	private long lastModificationTime = 0L;
+	private Set<String> callsigns;
+	private File siteRepoPath;
+	private int pollMinutes;
+	private int tweetSeconds;
+	private File hgExecutablePath;
+	private String consumerKey;
+	private String consumerSecret;
+	private String accessToken;
+	private String accessSecret;
+	private int maxListingEntries;
+	private boolean enableFeedReading;
+	private boolean enablePageUpdating;
+	private boolean enableTweeting;
 
 	public static Logger getLogger() {
 		return LOGGER;
 	}
 
+	public Config(final File prefsFile) {
+		this.prefsFile = prefsFile;
+		readConfigurationFromPropertiesFile();
+	}
+
+	public String getConsumerKey() {
+		readConfigurationFromPropertiesFile();
+		return consumerKey;
+	}
+
+	public String getConsumerSecret() {
+		readConfigurationFromPropertiesFile();
+		return consumerSecret;
+	}
+
+	public String getAccessToken() {
+		readConfigurationFromPropertiesFile();
+		return accessToken;
+	}
+
+	public String getAccessSecret() {
+		readConfigurationFromPropertiesFile();
+		return accessSecret;
+	}
+
+	public File getHgExecutablePath() {
+		readConfigurationFromPropertiesFile();
+		return hgExecutablePath;
+	}
+
 	public File getSiteRepoPath() {
+		readConfigurationFromPropertiesFile();
 		return siteRepoPath;
 	}
 
 	public Set<String> getCallsigns() {
+		readConfigurationFromPropertiesFile();
 		return callsigns;
 	}
 
 	public int getPollMinutes() {
+		readConfigurationFromPropertiesFile();
 		return pollMinutes;
 	}
 
 	public int getTweetSeconds() {
+		readConfigurationFromPropertiesFile();
 		return tweetSeconds;
 	}
 
 	public int getMaxListingEntries() {
+		readConfigurationFromPropertiesFile();
 		return maxListingEntries;
 	}
 
 	public boolean isEnableFeedReading() {
+		readConfigurationFromPropertiesFile();
 		return enableFeedReading;
 	}
 
 	public boolean isEnablePageUpdating() {
+		readConfigurationFromPropertiesFile();
 		return enablePageUpdating;
 	}
 
 	public boolean isEnableTweeting() {
+		readConfigurationFromPropertiesFile();
 		return enableTweeting;
 	}
 
-	public Config(final File prefsFile) {
+
+	private void readConfigurationFromPropertiesFile() {
+		final long currentModificationTime = prefsFile.lastModified();
+		if (lastModificationTime == currentModificationTime) {
+			return;
+		}
+		lastModificationTime = currentModificationTime;
 		final Properties properties = loadProperties(prefsFile);
 		
 		callsigns = getCallsigns(properties.getProperty("callsigns"));		

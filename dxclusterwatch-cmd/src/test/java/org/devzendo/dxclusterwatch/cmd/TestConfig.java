@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Set;
 
+import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -302,6 +303,22 @@ public class TestConfig {
 		assertThat(config.isEnableFeedReading(), equalTo(feedReadingEnabled));
 		assertThat(config.isEnablePageUpdating(), equalTo(true));
 		assertThat(config.isEnableTweeting(), equalTo(false));;
+	}
+
+	@Test
+	public void changesToConfigAreAutomaticallyReloaded() throws IOException {
+		final boolean initialFeedReadingEnabled = true;
+		final File tempFile = createSampleConfig(root, initialFeedReadingEnabled);
+		final Config config = new Config(tempFile);
+		assertThat(config.isEnableFeedReading(), equalTo(initialFeedReadingEnabled));
+
+		// need to leave a few seconds for file modification time change to be discernible
+		ThreadUtils.waitNoInterruption(2000);
+		
+		final boolean newFeedReadingEnabled = false;
+		createSampleConfig(root, newFeedReadingEnabled );
+		
+		assertThat(config.isEnableFeedReading(), equalTo(newFeedReadingEnabled));
 	}
 
 	private File createSampleConfig(final File dir, final boolean feedReadingEnabled) throws IOException {
