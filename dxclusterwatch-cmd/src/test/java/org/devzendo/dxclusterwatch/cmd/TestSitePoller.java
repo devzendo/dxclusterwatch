@@ -32,7 +32,7 @@ public class TestSitePoller {
 		final HashSet<String> callsigns = new HashSet<String>();
 		callsigns.add("UA5D");
 		
-		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl, callsigns);
+		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl, callsigns, null /* TODO */);
 		final ClusterRecord[] records = sp.poll();
 		System.out.println("Read " + records.length + " records");
 		for (final ClusterRecord clusterRecord : records) {

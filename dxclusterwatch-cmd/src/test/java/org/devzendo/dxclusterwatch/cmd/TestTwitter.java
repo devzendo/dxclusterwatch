@@ -35,7 +35,8 @@ public class TestTwitter {
 				throw new IllegalStateException("Can't create preferences directory '" + prefsFactory.getPrefsDir() + "'");
 			}
 		}
-		
+
+		// TODO this relies on the deployment's config - needs to be test-local.
 		final Config config = new Config(prefsFactory.getPrefsFile());
 		tweeter = new Twitter4JTweeter(config);
 	}
