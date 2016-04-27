@@ -45,8 +45,7 @@ public class TestTwitter {
 		}
 
 		// TODO mock up configuredTwitterFactory behaviour
-		final Config config = new PropertiesConfig(prefsFactory.getPrefsFile());
-		tweeter = new Twitter4JTweeter(config, configuredTwitterFactory);
+		tweeter = new Twitter4JTweeter(configuredTwitterFactory);
 	}
 	
 	@Test

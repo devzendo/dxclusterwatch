@@ -15,7 +15,7 @@ public class Twitter4JTweeter implements Tweeter {
 
 	private final ConfiguredTwitterFactory configuredTwitterFactory;
 
-	public Twitter4JTweeter(final Config config, final ConfiguredTwitterFactory factory) {
+	public Twitter4JTweeter(final ConfiguredTwitterFactory factory) {
 		configuredTwitterFactory = factory;
 	}
 
