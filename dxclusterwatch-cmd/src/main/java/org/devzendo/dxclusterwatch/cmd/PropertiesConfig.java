@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PropertiesConfig {
+public class PropertiesConfig implements Config {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfig.class);
 	private static final Pattern TRUE_PATTERN = Pattern.compile("^(true|yes)$", Pattern.CASE_INSENSITIVE);
 	private static final Pattern FALSE_PATTERN = Pattern.compile("^(false|no)$", Pattern.CASE_INSENSITIVE);
@@ -44,66 +44,118 @@ public class PropertiesConfig {
 		readConfigurationFromPropertiesFile();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getConsumerKey()
+	 */
+	@Override
 	public String getConsumerKey() {
 		readConfigurationFromPropertiesFile();
 		return consumerKey;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getConsumerSecret()
+	 */
+	@Override
 	public String getConsumerSecret() {
 		readConfigurationFromPropertiesFile();
 		return consumerSecret;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getAccessToken()
+	 */
+	@Override
 	public String getAccessToken() {
 		readConfigurationFromPropertiesFile();
 		return accessToken;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getAccessSecret()
+	 */
+	@Override
 	public String getAccessSecret() {
 		readConfigurationFromPropertiesFile();
 		return accessSecret;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getHgExecutablePath()
+	 */
+	@Override
 	public File getHgExecutablePath() {
 		readConfigurationFromPropertiesFile();
 		return hgExecutablePath;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getSiteRepoPath()
+	 */
+	@Override
 	public File getSiteRepoPath() {
 		readConfigurationFromPropertiesFile();
 		return siteRepoPath;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getCallsigns()
+	 */
+	@Override
 	public Set<String> getCallsigns() {
 		readConfigurationFromPropertiesFile();
 		return callsigns;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getPollMinutes()
+	 */
+	@Override
 	public int getPollMinutes() {
 		readConfigurationFromPropertiesFile();
 		return pollMinutes;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getTweetSeconds()
+	 */
+	@Override
 	public int getTweetSeconds() {
 		readConfigurationFromPropertiesFile();
 		return tweetSeconds;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#getMaxListingEntries()
+	 */
+	@Override
 	public int getMaxListingEntries() {
 		readConfigurationFromPropertiesFile();
 		return maxListingEntries;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#isFeedReadingEnabled()
+	 */
+	@Override
 	public boolean isFeedReadingEnabled() {
 		readConfigurationFromPropertiesFile();
 		return enableFeedReading;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#isPageUpdatingEnabled()
+	 */
+	@Override
 	public boolean isPageUpdatingEnabled() {
 		readConfigurationFromPropertiesFile();
 		return enablePageUpdating;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.devzendo.dxclusterwatch.cmd.Config#isTweetingEnable()
+	 */
+	@Override
 	public boolean isTweetingEnable() {
 		readConfigurationFromPropertiesFile();
 		return enableTweeting;

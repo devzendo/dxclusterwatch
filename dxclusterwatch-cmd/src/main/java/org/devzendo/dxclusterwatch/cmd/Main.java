@@ -18,7 +18,7 @@ public class Main {
 				}
 			}
 			
-			final PropertiesConfig config = new PropertiesConfig(prefsFactory.getPrefsFile());
+			final Config config = new PropertiesConfig(prefsFactory.getPrefsFile());
 			final Tweeter tweeter = new Twitter4JTweeter(config);
 			final Persister persister = new H2Persister(prefsFactory.getPrefsDir(), config.getMaxListingEntries());
 			try {

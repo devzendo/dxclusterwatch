@@ -287,7 +287,7 @@ public class TestConfig {
 	public void loadConfig() throws IOException {
 		final boolean feedReadingEnabled = true;
 		final File tempFile = ConfigUnittest.createSampleConfig(root, feedReadingEnabled);
-		final PropertiesConfig config = new PropertiesConfig(tempFile);
+		final Config config = new PropertiesConfig(tempFile);
 		assertThat(config.getCallsigns(), containsInAnyOrder("M0CUV", "2E0SQL"));
 		assertThat(config.getPollMinutes(), equalTo(1));
 		assertThat(config.getTweetSeconds(), equalTo(30));
@@ -307,7 +307,7 @@ public class TestConfig {
 	public void changesToConfigAreAutomaticallyReloaded() throws IOException {
 		final boolean initialFeedReadingEnabled = true;
 		final File tempFile = ConfigUnittest.createSampleConfig(root, initialFeedReadingEnabled);
-		final PropertiesConfig config = new PropertiesConfig(tempFile);
+		final Config config = new PropertiesConfig(tempFile);
 		assertThat(config.isFeedReadingEnabled(), equalTo(initialFeedReadingEnabled));
 
 		// need to leave a few seconds for file modification time change to be discernible

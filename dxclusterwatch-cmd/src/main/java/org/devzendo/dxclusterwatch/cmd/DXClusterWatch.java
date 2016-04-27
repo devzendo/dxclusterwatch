@@ -18,10 +18,10 @@ public class DXClusterWatch {
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
-	private final PropertiesConfig config;
+	private final Config config;
 
 
-	public DXClusterWatch(final File prefsDir, final PropertiesConfig config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
+	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
 		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
