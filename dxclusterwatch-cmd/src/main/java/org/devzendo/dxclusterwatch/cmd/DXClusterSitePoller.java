@@ -31,7 +31,7 @@ public class DXClusterSitePoller implements SitePoller {
 	private final WebResource webResource;
 	private final Config config;
 
-	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Set<String> callsigns, final Config config) {
+	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Config config) {
 		this.config = config;
 		try {
 			KeyStore.getInstance("JKS");

@@ -16,7 +16,11 @@ import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestSitePoller {
 	private final String mainServerUrl = "https://www.dxcluster.co.uk/index.php?/api/all";
 	//private final String localServerUrl = "http://localhost:8000/original_dxcluster.html";
@@ -26,13 +30,16 @@ public class TestSitePoller {
 		LoggingUnittest.initialise();
 	}
 
+	@Mock
+	private Config config;
+	
 	@Test
 	@Ignore
 	public void test() {
 		final HashSet<String> callsigns = new HashSet<String>();
 		callsigns.add("UA5D");
 		
-		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl, callsigns, null /* TODO */);
+		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl, config);
 		final ClusterRecord[] records = sp.poll();
 		System.out.println("Read " + records.length + " records");
 		for (final ClusterRecord clusterRecord : records) {
