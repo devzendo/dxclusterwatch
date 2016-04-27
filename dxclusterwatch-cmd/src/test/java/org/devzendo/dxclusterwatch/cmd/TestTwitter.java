@@ -11,15 +11,23 @@ import org.devzendo.commoncode.prefs.PrefsFactory;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestTwitter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestTwitter.class);
 
 	private static Tweeter tweeter;
 	private static long time = 1461324273856L; // 12:24 on 22/04/2016
+
 	private static final ClusterRecord dbRecord = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", new Timestamp(time), "14060", "This tweet was posted by an integration test.");
+
+	@Mock
+	private static ConfiguredTwitterFactory configuredTwitterFactory;
 
 	@BeforeClass
 	public static void setupLogging() {
@@ -36,9 +44,9 @@ public class TestTwitter {
 			}
 		}
 
-		// TODO this relies on the deployment's config - needs to be test-local.
+		// TODO mock up configuredTwitterFactory behaviour
 		final Config config = new PropertiesConfig(prefsFactory.getPrefsFile());
-		tweeter = new Twitter4JTweeter(config);
+		tweeter = new Twitter4JTweeter(config, configuredTwitterFactory);
 	}
 	
 	@Test

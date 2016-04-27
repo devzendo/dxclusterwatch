@@ -19,7 +19,8 @@ public class Main {
 			}
 			
 			final Config config = new PropertiesConfig(prefsFactory.getPrefsFile());
-			final Tweeter tweeter = new Twitter4JTweeter(config);
+			final ConfigConfiguredTwitterFactory configuredTwitterFactory = new ConfigConfiguredTwitterFactory(config);
+			final Tweeter tweeter = new Twitter4JTweeter(config, configuredTwitterFactory);
 			final Persister persister = new H2Persister(prefsFactory.getPrefsDir(), config.getMaxListingEntries());
 			try {
 				final PageBuilder pageBuilder = new BitbucketPagesPageBuilder(config, persister);
