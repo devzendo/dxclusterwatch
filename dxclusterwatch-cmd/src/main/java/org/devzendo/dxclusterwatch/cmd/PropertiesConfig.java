@@ -167,6 +167,7 @@ public class PropertiesConfig implements Config {
 		if (lastModificationTime == currentModificationTime) {
 			return;
 		}
+		LOGGER.info("Reading configuration file " + prefsFile.getAbsolutePath());
 		lastModificationTime = currentModificationTime;
 		final Properties properties = loadProperties(prefsFile);
 		
