@@ -28,12 +28,10 @@ import com.sun.jersey.core.header.InBoundHeaders;
 
 public class DXClusterSitePoller implements SitePoller {
 	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterSitePoller.class);
-	private final Set<String> callsigns;
 	private final WebResource webResource;
 	private final Config config;
 
 	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Set<String> callsigns, final Config config) {
-		this.callsigns = callsigns;
 		this.config = config;
 		try {
 			KeyStore.getInstance("JKS");
@@ -84,6 +82,7 @@ public class DXClusterSitePoller implements SitePoller {
 		if (clientResponse.getStatus() == 200) {
 			LOGGER.debug("Response: " + clientResponse);
 			final ClusterRecord[] r = clientResponse.getEntity(ClusterRecord[].class);
+			final Set<String> callsigns = config.getCallsigns();
 			final ClusterRecord[] filtered = filterCallsigns(callsigns, r);
 			final long stop = System.currentTimeMillis();
 			LOGGER.debug("Retrieved {} records in {} ms, {} filtered records", r.length, (stop - start), filtered.length);
