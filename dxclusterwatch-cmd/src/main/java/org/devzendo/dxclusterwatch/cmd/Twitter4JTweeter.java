@@ -13,10 +13,10 @@ import twitter4j.TwitterException;
 public class Twitter4JTweeter implements Tweeter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Twitter4JTweeter.class);
 
-	private final ConfiguredTwitterFactory configuredTwitterFactory;
+	private final ConfigConfiguredTwitterFactory configuredTwitterFactory;
 
 	public Twitter4JTweeter(final Config config) {
-		configuredTwitterFactory = new ConfiguredTwitterFactory(config);
+		configuredTwitterFactory = new ConfigConfiguredTwitterFactory(config);
 	}
 
 	@Override

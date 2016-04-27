@@ -8,15 +8,15 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
-public class ConfiguredTwitterFactory {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConfiguredTwitterFactory.class);
+public class ConfigConfiguredTwitterFactory {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigConfiguredTwitterFactory.class);
 	private final Config config;
 
 	// Twitter instance control - new one if config changes
 	private String configStrings = "";
 	private Twitter twitterInstance = null;
 
-	public ConfiguredTwitterFactory(final Config config) {
+	public ConfigConfiguredTwitterFactory(final Config config) {
 		this.config = config;
 	}
 
