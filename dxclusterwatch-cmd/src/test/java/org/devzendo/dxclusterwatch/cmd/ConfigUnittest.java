@@ -27,6 +27,7 @@ public class ConfigUnittest {
 			fileWriter.write("enableFeedReading=" + feedReadingEnabled + LINE_SEP);
 			fileWriter.write("enablePageUpdating=yes" + LINE_SEP);
 			fileWriter.write("enableTweeting=No" + LINE_SEP);
+			fileWriter.write("serverURI=http://localhost:5645" + LINE_SEP);
 		} finally {
 			fileWriter.close();
 		}

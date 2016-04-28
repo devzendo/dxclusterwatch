@@ -3,6 +3,7 @@ package org.devzendo.dxclusterwatch.cmd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
@@ -34,6 +35,7 @@ public class PropertiesConfig implements Config {
 	private boolean enableFeedReading;
 	private boolean enablePageUpdating;
 	private boolean enableTweeting;
+	private URI serverURI;
 
 	public static Logger getLogger() {
 		return LOGGER;
@@ -128,6 +130,11 @@ public class PropertiesConfig implements Config {
 		return enableTweeting;
 	}
 
+	@Override
+	public URI getServerURI() {
+		readConfigurationFromPropertiesFile();
+		return serverURI;
+	}
 
 	private void readConfigurationFromPropertiesFile() {
 		final long currentModificationTime = prefsFile.lastModified();
@@ -151,6 +158,7 @@ public class PropertiesConfig implements Config {
 		enableFeedReading = mustBeBoolean("enableFeedReading", properties.getProperty("enableFeedReading"));
 		enablePageUpdating = mustBeBoolean("enablePageUpdating", properties.getProperty("enablePageUpdating"));
 		enableTweeting = mustBeBoolean("enableTweeting", properties.getProperty("enableTweeting"));
+		serverURI = mustBeURI("serverURI", properties.getProperty("serverURI"));
 	}
 
 	static String mustBeString(final String propertyName, final String value) {
@@ -215,6 +223,14 @@ public class PropertiesConfig implements Config {
 			return false;
 		}
 		throw new IllegalArgumentException(boolText + " is not a boolean");
+	}
+
+	static URI mustBeURI(final String propertyName, final String uriText) {
+		LOGGER.debug("Checking property {} URI {}", propertyName, uriText);
+		if (uriText == null || uriText.trim().isEmpty()) {
+			throw new IllegalArgumentException("Empty property '" + propertyName + "'");
+		}
+		return URI.create(uriText.trim());
 	}
 
 	static Set<String> getCallsigns(final String prop) {

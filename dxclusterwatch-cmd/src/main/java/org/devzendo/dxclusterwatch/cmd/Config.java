@@ -1,10 +1,13 @@
 package org.devzendo.dxclusterwatch.cmd;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Set;
 
 public interface Config {
 
+	URI getServerURI();
+	
 	boolean hasChanged();
 	
 	String getConsumerKey();

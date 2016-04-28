@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.hasSize;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Set;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
@@ -262,6 +263,35 @@ public class TestConfig {
 
 		PropertiesConfig.mustBeBoolean("enable", "ffs");
 	}
+	
+	@Test
+	public void nullURI() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'uri'"));
+
+		PropertiesConfig.mustBeURI("uri", null);
+	}
+
+	@Test
+	public void emptyURI() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Empty property 'uri'"));
+
+		PropertiesConfig.mustBeURI("uri", "");
+	}
+
+	@Test
+	public void notAURI() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("Illegal character in path at index 5: bacon sandwich"));
+
+		PropertiesConfig.mustBeURI("uri", "bacon sandwich");
+	}
+
+	@Test
+	public void validURI() throws Exception {
+		assertThat(PropertiesConfig.mustBeURI("uri", "https://localhost:8080/"), equalTo(URI.create("https://localhost:8080/")));
+	}
 
 	@Test
 	public void trueBoolean() throws Exception {
@@ -301,7 +331,8 @@ public class TestConfig {
 		assertThat(config.getMaxListingEntries(), equalTo(20));
 		assertThat(config.isFeedReadingEnabled(), equalTo(feedReadingEnabled));
 		assertThat(config.isPageUpdatingEnabled(), equalTo(true));
-		assertThat(config.isTweetingEnable(), equalTo(false));;
+		assertThat(config.isTweetingEnable(), equalTo(false));
+		assertThat(config.getServerURI(), equalTo(URI.create("http://localhost:5645")));
 	}
 
 	@Test
