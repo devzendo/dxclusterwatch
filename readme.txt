@@ -24,7 +24,7 @@ maxListingEntries= (maximum size of the report listing; most recent listings fir
 enableFeedReading= (whether to enable feed reading, yes/true, no/false)
 enablePageUpdating= (whether to update/publish the page)
 enableTweeting= (whether to enable tweeting)
-
+serverURI= (server URI, typically https://www.dxcluster.co.uk/index.php?/api/all)
 
 Things to change for next run:
 1) watch the properties file for configuration changes, and apply them dynamically without having to restart.
