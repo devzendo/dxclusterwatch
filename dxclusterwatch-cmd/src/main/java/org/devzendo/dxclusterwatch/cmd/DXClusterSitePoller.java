@@ -28,8 +28,8 @@ import com.sun.jersey.core.header.InBoundHeaders;
 
 public class DXClusterSitePoller implements SitePoller {
 	private static Logger LOGGER = LoggerFactory.getLogger(DXClusterSitePoller.class);
-	private final WebResource webResource;
 	private final Config config;
+	private Client client;
 
 	public DXClusterSitePoller(final File prefsDir, final Config config) {
 		this.config = config;
@@ -41,8 +41,7 @@ public class DXClusterSitePoller implements SitePoller {
 			clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
 			clientConfig.getClasses().add(JacksonJsonProvider.class);
 			
-			final Client client = Client.create(clientConfig);
-			//client.addFilter(new LoggingFilter(System.out));
+			client = Client.create(clientConfig);
 			
 			// DXCluster.co.uk always sends a content-type of text/html, which Jersey doesn't interpret as application/json, so bodge the response
 			// to be application/json to force JSON deserialisation.
@@ -66,7 +65,6 @@ public class DXClusterSitePoller implements SitePoller {
 					return new ClientResponse(response.getStatus(), headers, response.getEntityInputStream(), client.getMessageBodyWorkers());
 				}});
 			
-			webResource = client.resource(config.getServerURI());
 		} catch (final KeyStoreException e1) {
 			final String msg = "Can't set up key store: " + e1.getMessage();
 			LOGGER.error(msg);
@@ -78,6 +76,7 @@ public class DXClusterSitePoller implements SitePoller {
 	public ClusterRecord[] poll() {
 		LOGGER.debug("Polling DXCluster...");
 		final long start = System.currentTimeMillis();
+		final WebResource webResource = client.resource(config.getServerURI());
 		final ClientResponse clientResponse = webResource.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
 		if (clientResponse.getStatus() == 200) {
 			LOGGER.debug("Response: " + clientResponse);
