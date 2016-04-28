@@ -135,6 +135,13 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
 			<version>1.17.1</version>
 		</dependency>
 
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple</artifactId>
+            <version>4.1.20</version>
+            <scope>test</scope>
+        </dependency>
+        
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-json</artifactId>

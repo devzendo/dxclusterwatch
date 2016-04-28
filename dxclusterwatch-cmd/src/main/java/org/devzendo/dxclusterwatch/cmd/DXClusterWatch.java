@@ -30,7 +30,7 @@ public class DXClusterWatch {
 		if (callsigns.isEmpty()) {
 			throw new IllegalStateException("No callsigns configured");
 		}
-		sitePoller = new DXClusterSitePoller(prefsDir, "https://www.dxcluster.co.uk/index.php?/api/all", config);
+		sitePoller = new DXClusterSitePoller(prefsDir, config);
 		Signals.withHandler(new Runnable() {
 			@Override
 			public void run() {

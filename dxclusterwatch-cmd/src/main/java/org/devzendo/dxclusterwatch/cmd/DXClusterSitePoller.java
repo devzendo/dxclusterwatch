@@ -31,7 +31,7 @@ public class DXClusterSitePoller implements SitePoller {
 	private final WebResource webResource;
 	private final Config config;
 
-	public DXClusterSitePoller(final File prefsDir, final String serverUrl, final Config config) {
+	public DXClusterSitePoller(final File prefsDir, final Config config) {
 		this.config = config;
 		try {
 			KeyStore.getInstance("JKS");
@@ -66,7 +66,7 @@ public class DXClusterSitePoller implements SitePoller {
 					return new ClientResponse(response.getStatus(), headers, response.getEntityInputStream(), client.getMessageBodyWorkers());
 				}});
 			
-			webResource = client.resource(serverUrl);
+			webResource = client.resource(config.getServerURI());
 		} catch (final KeyStoreException e1) {
 			final String msg = "Can't set up key store: " + e1.getMessage();
 			LOGGER.error(msg);

@@ -2,50 +2,78 @@ package org.devzendo.dxclusterwatch.cmd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.apache.log4j.BasicConfigurator;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.devzendo.commoncode.resource.ResourceLoader;
 import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestSitePoller {
-	private final String mainServerUrl = "https://www.dxcluster.co.uk/index.php?/api/all";
-	//private final String localServerUrl = "http://localhost:8000/original_dxcluster.html";
+	private FakeDXCluster fakeDXCluster;
+
+	private static Logger LOGGER = LoggerFactory.getLogger(TestSitePoller.class);
 
 	@BeforeClass
 	public static void setupLogging() {
-		LoggingUnittest.initialise();
+		BasicConfigurator.resetConfiguration();
+		BasicConfigurator.configure();
 	}
+
+    @Before
+    public void getPreRequisites() throws IOException {
+        fakeDXCluster = FakeDXCluster.createServer(8000);
+    }
+    
+    @After
+    public void shutdownWebServer() {
+        if (fakeDXCluster != null) {
+        	fakeDXCluster.stop();
+        }
+    }
 
 	@Mock
 	private Config config;
 	
 	@Test
-	@Ignore
-	public void test() {
+	public void pollFakeServerGetsRecords() {
 		final HashSet<String> callsigns = new HashSet<String>();
 		callsigns.add("UA5D");
 		
-		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), mainServerUrl, config);
+		final URI testServerURL = fakeDXCluster.getURI();
+		
+		when(config.getCallsigns()).thenReturn(callsigns);
+		when(config.getServerURI()).thenReturn(testServerURL);
+		
+		final DXClusterSitePoller sp = new DXClusterSitePoller(new File("src/test/resources"), config);
 		final ClusterRecord[] records = sp.poll();
-		System.out.println("Read " + records.length + " records");
+		LOGGER.info("Read {} records", records.length);
 		for (final ClusterRecord clusterRecord : records) {
-			System.out.println(clusterRecord);
+			LOGGER.info(clusterRecord.toDbString());
 		}
 		assertThat(records.length, equalTo(1));
+		
+		verify(config).getCallsigns();
+		verify(config).getServerURI();
 	}
 
 	@Test
