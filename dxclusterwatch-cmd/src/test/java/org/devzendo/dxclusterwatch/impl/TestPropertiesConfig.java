@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -14,6 +14,10 @@ import java.net.URI;
 import java.util.Set;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
+import org.devzendo.dxclusterwatch.cmd.Config;
+import org.devzendo.dxclusterwatch.cmd.ConfigUnittest;
+import org.devzendo.dxclusterwatch.cmd.LoggingUnittest;
+import org.devzendo.dxclusterwatch.impl.PropertiesConfig;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -21,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
-public class TestConfig {
+public class TestPropertiesConfig {
 	@Rule
 	public final TemporaryFolder tempDir = new TemporaryFolder();
 	private File root;

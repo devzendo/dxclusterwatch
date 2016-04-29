@@ -6,6 +6,7 @@ import org.devzendo.dxclusterwatch.impl.BitbucketPagesPageBuilder;
 import org.devzendo.dxclusterwatch.impl.ConfigConfiguredTwitterFactory;
 import org.devzendo.dxclusterwatch.impl.DXClusterSitePoller;
 import org.devzendo.dxclusterwatch.impl.H2Persister;
+import org.devzendo.dxclusterwatch.impl.PropertiesConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
