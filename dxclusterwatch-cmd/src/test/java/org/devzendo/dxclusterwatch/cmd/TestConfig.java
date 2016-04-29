@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -43,17 +42,26 @@ public class TestConfig {
 
 	@Test
 	public void emptyCallsigns() {
-		assertThat(PropertiesConfig.getCallsigns(""), empty());
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("No callsigns configured"));
+
+        PropertiesConfig.getCallsigns("");
 	}
 
 	@Test
 	public void spaceCallsigns() {
-		assertThat(PropertiesConfig.getCallsigns(" "), empty());
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("No callsigns configured"));
+
+        PropertiesConfig.getCallsigns(" ");
 	}
 
 	@Test
 	public void nullCallsigns() {
-		assertThat(PropertiesConfig.getCallsigns(null), empty());
+		thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(containsString("No callsigns configured"));
+
+		PropertiesConfig.getCallsigns(null);
 	}
 
 	@Test

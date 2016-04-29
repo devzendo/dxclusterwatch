@@ -27,9 +27,6 @@ public class DXClusterWatch {
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
 		final Set<String> callsigns = config.getCallsigns();
-		if (callsigns.isEmpty()) {
-			throw new IllegalStateException("No callsigns configured");
-		}
 		sitePoller = new DXClusterSitePoller(prefsDir, config);
 		Signals.withHandler(new Runnable() {
 			@Override

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -234,17 +233,19 @@ public class PropertiesConfig implements Config {
 	}
 
 	static Set<String> getCallsigns(final String prop) {
-		if (prop == null) {
-			return Collections.emptySet();
-		}
-		final String trim = prop.trim();
-		if (trim.isEmpty()) {
-			return Collections.emptySet();
-		}
-		final String[] split = StringUtils.defaultString(trim).split(",");
+		final String trim = prop == null ? "" : prop.trim();
 		final Set<String> set = new HashSet<>();
-		for (final String callsign : split) {
-			set.add(callsign.trim().toUpperCase());
+		if (!trim.isEmpty()) {
+			final String[] split = StringUtils.defaultString(trim).split(",");
+			for (final String callsign : split) {
+				set.add(callsign.trim().toUpperCase());
+			}
+		}
+		if (set.isEmpty()) {
+			throw new IllegalArgumentException("No callsigns configured");
+		}
+		for (final String callsign : set) {
+			LOGGER.debug("Callsign: [{}]", callsign);
 		}
 		return set;
  	}
