@@ -8,6 +8,7 @@ public class LoggingUnittest {
 	public static synchronized void initialise() {
 		if (!initialised) {
 			initialised = true;
+			BasicConfigurator.resetConfiguration();
 			BasicConfigurator.configure();
 		}
 	}
