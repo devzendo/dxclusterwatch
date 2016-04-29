@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import java.io.File;
 import java.security.KeyStore;
@@ -12,6 +12,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.devzendo.dxclusterwatch.cmd.Config;
+import org.devzendo.dxclusterwatch.cmd.SitePoller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

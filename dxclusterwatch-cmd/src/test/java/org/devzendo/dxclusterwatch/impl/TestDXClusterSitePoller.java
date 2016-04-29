@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -16,6 +16,10 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.devzendo.commoncode.resource.ResourceLoader;
+import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.devzendo.dxclusterwatch.cmd.Config;
+import org.devzendo.dxclusterwatch.cmd.FakeDXCluster;
+import org.devzendo.dxclusterwatch.impl.DXClusterSitePoller;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -28,10 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestSitePoller {
+public class TestDXClusterSitePoller {
 	private FakeDXCluster fakeDXCluster;
 
-	private static Logger LOGGER = LoggerFactory.getLogger(TestSitePoller.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(TestDXClusterSitePoller.class);
 
 	@BeforeClass
 	public static void setupLogging() {
