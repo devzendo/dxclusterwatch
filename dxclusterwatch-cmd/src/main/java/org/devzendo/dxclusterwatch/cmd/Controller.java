@@ -8,8 +8,8 @@ import org.devzendo.dxclusterwatch.util.Signals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DXClusterWatch {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DXClusterWatch.class);
+public class Controller {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
 	private final Config config;
@@ -18,7 +18,7 @@ public class DXClusterWatch {
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
 
-	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller) {
+	public Controller(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller) {
 		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
