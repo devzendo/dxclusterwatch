@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.test;
 
 import org.apache.log4j.BasicConfigurator;
 

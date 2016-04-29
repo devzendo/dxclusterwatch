@@ -11,9 +11,9 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
-import org.devzendo.dxclusterwatch.cmd.LoggingUnittest;
 import org.devzendo.dxclusterwatch.cmd.Persister;
 import org.devzendo.dxclusterwatch.impl.H2Persister;
+import org.devzendo.dxclusterwatch.test.LoggingUnittest;
 import org.h2.engine.ExistenceChecker;
 import org.junit.After;
 import org.junit.Before;

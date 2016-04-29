@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.test;
 
 import java.io.IOException;
 import java.io.PrintStream;

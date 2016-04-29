@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.test;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -15,9 +15,9 @@ import java.util.Set;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.devzendo.dxclusterwatch.cmd.Config;
-import org.devzendo.dxclusterwatch.cmd.ConfigUnittest;
-import org.devzendo.dxclusterwatch.cmd.LoggingUnittest;
 import org.devzendo.dxclusterwatch.impl.PropertiesConfig;
+import org.devzendo.dxclusterwatch.test.ConfigUnittest;
+import org.devzendo.dxclusterwatch.test.LoggingUnittest;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
