@@ -17,12 +17,12 @@ public class DXClusterWatch {
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
 
-	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter) {
+	public DXClusterWatch(final File prefsDir, final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller) {
 		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
-		this.sitePoller = new DXClusterSitePoller(prefsDir, config);
+		this.sitePoller = sitePoller;
 
 		Signals.withHandler(new Runnable() {
 			@Override

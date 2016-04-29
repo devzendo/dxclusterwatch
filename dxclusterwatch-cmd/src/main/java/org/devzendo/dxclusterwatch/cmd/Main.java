@@ -25,7 +25,9 @@ public class Main {
 			try {
 				final PageBuilder pageBuilder = new BitbucketPagesPageBuilder(config, persister);
 				
-				new DXClusterWatch(prefsFactory.getPrefsDir(), config, persister, pageBuilder, tweeter).start();
+				final DXClusterSitePoller sitePoller = new DXClusterSitePoller(prefsFactory.getPrefsDir(), config);
+
+				new DXClusterWatch(prefsFactory.getPrefsDir(), config, persister, pageBuilder, tweeter, sitePoller).start();
 			}
 			finally {
 				persister.close();
