@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -8,6 +8,10 @@ import java.sql.Timestamp;
 
 import org.apache.log4j.BasicConfigurator;
 import org.devzendo.commoncode.prefs.PrefsFactory;
+import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.devzendo.dxclusterwatch.cmd.ConfiguredTwitterFactory;
+import org.devzendo.dxclusterwatch.cmd.Tweeter;
+import org.devzendo.dxclusterwatch.impl.Twitter4JTweeter;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestTwitter {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TestTwitter.class);
+public class TestTwitter4JTweeter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestTwitter4JTweeter.class);
 
 	private static Tweeter tweeter;
 	private static long time = 1461324273856L; // 12:24 on 22/04/2016

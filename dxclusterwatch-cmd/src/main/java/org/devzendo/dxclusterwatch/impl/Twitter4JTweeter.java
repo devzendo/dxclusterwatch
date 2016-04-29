@@ -1,9 +1,12 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 import org.apache.commons.lang3.StringUtils;
+import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.devzendo.dxclusterwatch.cmd.ConfiguredTwitterFactory;
+import org.devzendo.dxclusterwatch.cmd.Tweeter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
