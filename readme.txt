@@ -1,12 +1,20 @@
 Very rough notes.
 
-Need to create a cacerts file that has the certificate for dxcluster.co.uk
+Configuration storage
+This is in ~/dxclusterwatch, and is a properties file, dxclusterwatch.properties.
+
+mkdir ~/dxclusterwatch
+
+Also in this directory is a cacerts file that has the certificate for dxcluster.co.uk,
+so copy the JRE's cacerts, and add the new certificate to it, copying the new cacerts
+into the ~/dxclusterwatch/cacerts file. Use the default passphrase of changeit, as in:
 
 See http://stackoverflow.com/questions/6659360/how-to-solve-javax-net-ssl-sslhandshakeexception-error
 
-Save certificate from a browser to the dxcluster.co.uk file
+1. Save certificate from a browser to the dxcluster.co.uk file
 
-keytool -import -file dxcluster.co.uk -alias dxcluster -keystore <path to cacerts file>
+2. cp /Library/Java/JavaVirtualMachines/jdk1.7.0_75.jdk/Contents/Home/jre/lib/security/cacerts ~/dxclusterwatch/cacerts
+3. keytool -import -file dxcluster.co.uk -alias dxcluster -keystore ~/dxclusterwatch/cacerts
 
 This path will be the ~/dxclusterwatch directory.
 
@@ -27,7 +35,6 @@ enableTweeting= (whether to enable tweeting)
 serverURI= (server URI, typically https://www.dxcluster.co.uk/index.php?/api/all)
 
 Things to change for next run:
-1) watch the properties file for configuration changes, and apply them dynamically without having to restart.
 2) add crowbars: disable flags in the config for
    a) reading from the API
    b) updating the webpage
