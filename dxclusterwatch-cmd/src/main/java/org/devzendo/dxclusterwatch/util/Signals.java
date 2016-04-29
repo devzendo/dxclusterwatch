@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.util;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
+import org.devzendo.dxclusterwatch.util.Signals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
