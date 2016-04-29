@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.devzendo.dxclusterwatch.cmd.LoggingUnittest;
+import org.devzendo.dxclusterwatch.cmd.Persister;
+import org.devzendo.dxclusterwatch.impl.H2Persister;
 import org.h2.engine.ExistenceChecker;
 import org.junit.After;
 import org.junit.Before;

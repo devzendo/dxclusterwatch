@@ -4,6 +4,7 @@ import org.devzendo.commoncode.logging.Logging;
 import org.devzendo.commoncode.prefs.PrefsFactory;
 import org.devzendo.dxclusterwatch.impl.BitbucketPagesPageBuilder;
 import org.devzendo.dxclusterwatch.impl.ConfigConfiguredTwitterFactory;
+import org.devzendo.dxclusterwatch.impl.H2Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

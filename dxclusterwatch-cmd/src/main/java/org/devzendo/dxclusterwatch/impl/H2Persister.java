@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
 import java.io.File;
 import java.sql.ResultSet;
@@ -7,6 +7,8 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.devzendo.dxclusterwatch.cmd.Persister;
 import org.h2.engine.ExistenceChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
