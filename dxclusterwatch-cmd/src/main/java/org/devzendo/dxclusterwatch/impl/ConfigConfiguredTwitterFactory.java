@@ -1,5 +1,7 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.impl;
 
+import org.devzendo.dxclusterwatch.cmd.Config;
+import org.devzendo.dxclusterwatch.cmd.ConfiguredTwitterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

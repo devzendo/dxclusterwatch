@@ -3,6 +3,7 @@ package org.devzendo.dxclusterwatch.cmd;
 import org.devzendo.commoncode.logging.Logging;
 import org.devzendo.commoncode.prefs.PrefsFactory;
 import org.devzendo.dxclusterwatch.impl.BitbucketPagesPageBuilder;
+import org.devzendo.dxclusterwatch.impl.ConfigConfiguredTwitterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
