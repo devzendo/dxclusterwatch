@@ -12,9 +12,9 @@ import java.util.TimeZone;
 import org.devzendo.commoncode.resource.ResourceLoader;
 import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
 import org.devzendo.dxclusterwatch.cmd.Config;
-import org.devzendo.dxclusterwatch.cmd.Execute;
 import org.devzendo.dxclusterwatch.cmd.PageBuilder;
 import org.devzendo.dxclusterwatch.cmd.Persister;
+import org.devzendo.dxclusterwatch.util.Execute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

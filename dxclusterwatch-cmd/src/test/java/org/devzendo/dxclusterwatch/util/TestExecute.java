@@ -1,10 +1,11 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.util;
 
 import static org.hamcrest.Matchers.containsString;
 
 import java.io.File;
 
 import org.apache.log4j.BasicConfigurator;
+import org.devzendo.dxclusterwatch.util.Execute;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;

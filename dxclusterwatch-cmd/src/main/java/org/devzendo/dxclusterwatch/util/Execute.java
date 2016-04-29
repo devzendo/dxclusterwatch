@@ -1,4 +1,4 @@
-package org.devzendo.dxclusterwatch.cmd;
+package org.devzendo.dxclusterwatch.util;
 
 import java.io.BufferedReader;
 import java.io.File;
