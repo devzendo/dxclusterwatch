@@ -33,7 +33,7 @@ public class Main {
 				
 				final DXClusterSitePoller sitePoller = new DXClusterSitePoller(prefsFactory.getPrefsDir(), config);
 
-				new Controller(prefsFactory.getPrefsDir(), config, persister, pageBuilder, tweeter, sitePoller).start();
+				new Controller(config, persister, pageBuilder, tweeter, sitePoller).start();
 			}
 			finally {
 				persister.close();

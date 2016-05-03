@@ -6,15 +6,19 @@ import sun.misc.SignalHandler;
 
 public class Signals {
 	public static enum SignalName { CONT, INT };
-	public static SignalHandler withHandler(final Runnable handler, final SignalName signalname) {
-		final Signal sig = new Signal(signalname.name());
+	public static SignalHandler withHandler(final Runnable runnable, final SignalName signalName) {
+		final Signal sig = new Signal(signalName.name());
 		final SignalHandler newHandler = new SignalHandler() {
 
 			@Override
 			public void handle(final Signal sig) {
-				handler.run();
+				runnable.run();
 			}};
 		final SignalHandler oldHandler = Signal.handle(sig, newHandler);
 		return oldHandler;
+	}
+	
+	public static SignalHandler handle(final SignalHandler handler, final SignalName signalName) {
+		return Signal.handle(new Signal(signalName.name()), handler);
 	}
 }
