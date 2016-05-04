@@ -1,42 +1,21 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
+import java.sql.Timestamp;
 
-import org.apache.log4j.BasicConfigurator;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.devzendo.commoncode.concurrency.ThreadUtils;
-import org.devzendo.commoncode.resource.ResourceLoader;
-import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
-import org.devzendo.dxclusterwatch.cmd.Config;
-import org.devzendo.dxclusterwatch.impl.TestDXClusterSitePoller;
-import org.devzendo.dxclusterwatch.test.FakeDXCluster;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
-import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.internal.verification.AtLeast;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.verification.VerificationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +39,11 @@ public class TestController {
 			controllerThread.interrupt();
 		}
 	}
-	
+
+	private final ClusterRecord dbRecord1 = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", secsFromEpoch(20), "14060", "Hi Matt");
+	private final ClusterRecord dbRecord2 = ClusterRecord.dbRecord(2, "GB3IMD", "M0CUV", secsFromEpoch(25), "7035", "UP 20");
+	private final ClusterRecord[] records = new ClusterRecord[] {dbRecord1, dbRecord2};
+
 	private Thread controllerThread; // controller start() is blocking, so need to start it elsewhere.
 	private volatile Controller controller;
 
@@ -77,13 +60,53 @@ public class TestController {
 
 	@Test
 	public void startsAndStops() {
-		when(config.getPollMinutes()).thenReturn(1);
+		configExpectations();
 		when(sitePoller.poll()).thenReturn(new ClusterRecord[0]);
-		when(config.getTweetSeconds()).thenReturn(1);
 		when(persister.getNextRecordToTweet()).thenReturn(null);
 		
-		controllerThread = new Thread(new Runnable() {
+		startController();
+		
+		ThreadUtils.waitNoInterruption(2500);
+		controller.stop();
+		
+		verify(config, atLeast(1)).getPollMinutes();
+	}
 
+	@Test
+	public void recordsReceivedFromSitePollerAreHandled() throws Exception {
+		configExpectations();
+		when(sitePoller.poll()).thenReturn(records);
+		
+		when(persister.persistRecords(records)).thenReturn(2);
+		
+		doNothing().when(pageBuilder).rebuildPage(anyInt(), anyInt());
+		doNothing().when(pageBuilder).publishPage();
+		
+		when(persister.getNextRecordToTweet()).thenReturn(null);
+
+		startController();
+
+		ThreadUtils.waitNoInterruption(2500);
+		controller.stop();
+		
+		verify(config, atLeast(1)).getPollMinutes();
+		verify(pageBuilder).rebuildPage(2, 2);
+		verify(pageBuilder).publishPage();
+	}
+
+	private void configExpectations() {
+		when(config.getPollMinutes()).thenReturn(1);
+		when(config.getTweetSeconds()).thenReturn(1);
+	}
+
+	private Timestamp secsFromEpoch(final long secondsFromEpoch) {
+		final Timestamp when = new Timestamp(secondsFromEpoch * 1000);
+		return when;
+	}
+
+	private void startController() {
+		controllerThread = new Thread(new Runnable() {
+		
 			@Override
 			public void run() {
 				controller = new Controller(config, persister, pageBuilder, tweeter, sitePoller);
@@ -91,10 +114,6 @@ public class TestController {
 			}});
 		controllerThread.setDaemon(true);
 		controllerThread.start();
-		
-		ThreadUtils.waitNoInterruption(2500);
-		controller.stop();
-		
-		verify(config, atLeast(1)).getPollMinutes();
 	}
+
 }
