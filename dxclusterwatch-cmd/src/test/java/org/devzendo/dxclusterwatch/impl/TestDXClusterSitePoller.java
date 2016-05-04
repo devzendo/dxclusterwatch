@@ -11,15 +11,14 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.apache.log4j.BasicConfigurator;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.devzendo.commoncode.resource.ResourceLoader;
 import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
 import org.devzendo.dxclusterwatch.cmd.Config;
-import org.devzendo.dxclusterwatch.impl.DXClusterSitePoller;
 import org.devzendo.dxclusterwatch.test.FakeDXCluster;
+import org.devzendo.dxclusterwatch.test.LoggingUnittest;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -39,8 +38,7 @@ public class TestDXClusterSitePoller {
 
 	@BeforeClass
 	public static void setupLogging() {
-		BasicConfigurator.resetConfiguration();
-		BasicConfigurator.configure();
+		LoggingUnittest.initialise();
 	}
 
     @Before
