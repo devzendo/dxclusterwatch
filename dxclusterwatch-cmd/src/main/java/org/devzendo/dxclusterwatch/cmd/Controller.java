@@ -15,7 +15,7 @@ public class Controller {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 	
 	private final AtomicBoolean running = new AtomicBoolean(true);
-	private final CountDownLatch finished = new CountDownLatch(1);
+	private final CountDownLatch stopEnded = new CountDownLatch(1);
 	private final Config config;
 	private final Persister persister;
 	private final PageBuilder pageBuilder;
@@ -44,7 +44,7 @@ public class Controller {
 		running.set(false);
 		try {
 			LOGGER.debug("Waiting for stop");
-			finished.await();
+			stopEnded.await();
 			LOGGER.debug("Stopped");
 		} catch (final InterruptedException e) {
 			LOGGER.warn("Could not wait for stop: " + e.getMessage());
@@ -114,7 +114,8 @@ public class Controller {
 			ThreadUtils.waitNoInterruption(1000L);
 		}
 		
-		LOGGER.info("Finishing");
+		stopEnded.countDown();
+		LOGGER.info("Finished");
 	}
 
 	private long nowSeconds() {
