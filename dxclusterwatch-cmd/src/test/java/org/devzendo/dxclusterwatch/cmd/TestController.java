@@ -76,12 +76,7 @@ public class TestController {
 	public void recordsReceivedFromSitePollerAreHandled() throws Exception {
 		configExpectations();
 		when(sitePoller.poll()).thenReturn(records);
-		
 		when(persister.persistRecords(records)).thenReturn(2);
-		
-		doNothing().when(pageBuilder).rebuildPage(anyInt(), anyInt());
-		doNothing().when(pageBuilder).publishPage();
-		
 		when(persister.getNextRecordToTweet()).thenReturn(null);
 
 		startController();
@@ -89,9 +84,26 @@ public class TestController {
 		ThreadUtils.waitNoInterruption(2500);
 		controller.stop();
 		
-		verify(config, atLeast(1)).getPollMinutes();
 		verify(pageBuilder).rebuildPage(2, 2);
 		verify(pageBuilder).publishPage();
+	}
+
+	@Test
+	public void recordsReceivedFromSitePollerAreTweeted() throws Exception {
+		configExpectations();
+		when(sitePoller.poll()).thenReturn(records);
+		when(persister.persistRecords(records)).thenReturn(2);
+		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord2, null);
+
+		startController();
+
+		ThreadUtils.waitNoInterruption(4000);
+		controller.stop();
+
+		verify(tweeter).tweet(dbRecord1);
+		verify(persister).markTweeted(dbRecord1);
+		verify(tweeter).tweet(dbRecord2);
+		verify(persister).markTweeted(dbRecord2);
 	}
 
 	private void configExpectations() {
