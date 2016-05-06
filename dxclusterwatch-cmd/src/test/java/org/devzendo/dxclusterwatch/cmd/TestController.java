@@ -1,12 +1,15 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import static org.mockito.Matchers.anyInt;
+import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.devzendo.commoncode.concurrency.ThreadUtils;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
@@ -15,9 +18,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jersey.api.client.ClientHandlerException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestController {
@@ -89,6 +96,36 @@ public class TestController {
 	}
 
 	@Test
+	public void sitePollerFailureTriggersBackoff() throws Exception {
+		configExpectations();
+		final long start = nowSeconds();
+		final List<Long> pollTimeOffsets = new ArrayList<>();
+		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
+			@Override
+			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
+				final boolean failing = pollTimeOffsets.size() < 3;
+				final long timeOffset = nowSeconds() - start;
+				LOGGER.debug("Recording poll time offset of {}", timeOffset);
+				pollTimeOffsets.add(timeOffset);
+				if (failing) {
+					LOGGER.debug("Simulating connection failure");
+					throw new ClientHandlerException("could not connect");
+				} else {
+					LOGGER.debug("Poll ok, but no data to return");
+					return new ClusterRecord[0];
+				}
+			}});
+		when(persister.getNextRecordToTweet()).thenReturn(null);
+
+		startController();
+
+		ThreadUtils.waitNoInterruption(190000);
+		controller.stop();
+		
+		assertThat(pollTimeOffsets, equalTo(asList(0L, 60L, 180L)));
+	}
+
+	@Test
 	public void recordsReceivedFromSitePollerAreTweeted() throws Exception {
 		configExpectations();
 		when(sitePoller.poll()).thenReturn(records);
@@ -109,6 +146,10 @@ public class TestController {
 	private void configExpectations() {
 		when(config.getPollMinutes()).thenReturn(1);
 		when(config.getTweetSeconds()).thenReturn(1);
+	}
+
+	private long nowSeconds() {
+		return System.currentTimeMillis() / 1000;
 	}
 
 	private Timestamp secsFromEpoch(final long secondsFromEpoch) {
