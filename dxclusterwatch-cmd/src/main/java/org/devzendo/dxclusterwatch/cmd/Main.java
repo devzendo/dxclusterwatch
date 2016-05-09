@@ -2,6 +2,7 @@ package org.devzendo.dxclusterwatch.cmd;
 
 import org.devzendo.commoncode.logging.Logging;
 import org.devzendo.commoncode.prefs.PrefsFactory;
+import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.impl.BitbucketPagesPageBuilder;
 import org.devzendo.dxclusterwatch.impl.ConfigConfiguredTwitterFactory;
 import org.devzendo.dxclusterwatch.impl.DXClusterSitePoller;
@@ -33,7 +34,7 @@ public class Main {
 				
 				final DXClusterSitePoller sitePoller = new DXClusterSitePoller(prefsFactory.getPrefsDir(), config);
 
-				new Controller(config, persister, pageBuilder, tweeter, sitePoller).start();
+				new Controller(config, persister, pageBuilder, tweeter, sitePoller, new Sleeper()).start();
 			}
 			finally {
 				persister.close();

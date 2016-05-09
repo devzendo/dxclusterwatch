@@ -3,7 +3,7 @@ package org.devzendo.dxclusterwatch.cmd;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.devzendo.commoncode.concurrency.ThreadUtils;
+import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.util.Signals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +21,17 @@ public class Controller {
 	private final PageBuilder pageBuilder;
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
+	private final Sleeper sleeper;
 
 	private final SignalHandler oldIntHandler;
 
-	public Controller(final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller) {
+	public Controller(final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller, final Sleeper sleeper) {
 		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
 		this.sitePoller = sitePoller;
+		this.sleeper = sleeper;
 
 		this.oldIntHandler = Signals.withHandler(new Runnable() {
 			@Override
@@ -111,7 +113,7 @@ public class Controller {
 				}
 			}
 
-			ThreadUtils.waitNoInterruption(1000L);
+			sleeper.sleep(1000L);
 		}
 		
 		stopEnded.countDown();
@@ -119,6 +121,6 @@ public class Controller {
 	}
 
 	private long nowSeconds() {
-		return System.currentTimeMillis() / 1000;
+		return sleeper.currentTimeMillis() / 1000;
 	}
 }

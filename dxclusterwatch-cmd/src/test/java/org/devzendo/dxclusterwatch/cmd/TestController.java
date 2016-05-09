@@ -1,8 +1,7 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import static java.util.Arrays.asList;
+import static org.devzendo.dxclusterwatch.cmd.TestController.LongCloseTo.closeTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,8 +10,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.devzendo.commoncode.concurrency.ThreadUtils;
+import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
+import org.hamcrest.Description;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,7 +38,6 @@ public class TestController {
 		LoggingUnittest.initialise();
 	}
 
-	
 	@After
 	public void stopController() {
 		if (controller != null) {
@@ -49,10 +50,12 @@ public class TestController {
 
 	private final ClusterRecord dbRecord1 = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", secsFromEpoch(20), "14060", "Hi Matt");
 	private final ClusterRecord dbRecord2 = ClusterRecord.dbRecord(2, "GB3IMD", "M0CUV", secsFromEpoch(25), "7035", "UP 20");
-	private final ClusterRecord[] records = new ClusterRecord[] {dbRecord1, dbRecord2};
+	private final ClusterRecord[] records = new ClusterRecord[] { dbRecord1, dbRecord2 };
 
 	private Thread controllerThread; // controller start() is blocking, so need to start it elsewhere.
 	private volatile Controller controller;
+	
+	private final Sleeper sleeper = new Sleeper(100);
 
 	@Mock
 	private Config config;
@@ -70,12 +73,12 @@ public class TestController {
 		configExpectations();
 		when(sitePoller.poll()).thenReturn(new ClusterRecord[0]);
 		when(persister.getNextRecordToTweet()).thenReturn(null);
-		
+
 		startController();
-		
-		ThreadUtils.waitNoInterruption(2500);
+
+		sleeper.sleep(2500);
 		controller.stop();
-		
+
 		verify(config, atLeast(1)).getPollMinutes();
 	}
 
@@ -88,9 +91,9 @@ public class TestController {
 
 		startController();
 
-		ThreadUtils.waitNoInterruption(2500);
+		sleeper.sleep(2500);
 		controller.stop();
-		
+
 		verify(pageBuilder).rebuildPage(2, 2);
 		verify(pageBuilder).publishPage();
 	}
@@ -114,15 +117,65 @@ public class TestController {
 					LOGGER.debug("Poll ok, but no data to return");
 					return new ClusterRecord[0];
 				}
-			}});
+			}
+		});
 		when(persister.getNextRecordToTweet()).thenReturn(null);
 
 		startController();
 
-		ThreadUtils.waitNoInterruption(190000);
+		sleeper.sleep(440000);
 		controller.stop();
-		
-		assertThat(pollTimeOffsets, equalTo(asList(0L, 60L, 180L)));
+
+		assertThat(pollTimeOffsets, Matchers.hasSize(5));
+		final long tolerance = 5L;
+		assertThat(pollTimeOffsets.get(0), closeTo(0L, tolerance));
+		assertThat(pollTimeOffsets.get(1), closeTo(60L, tolerance));  // 60
+		assertThat(pollTimeOffsets.get(2), closeTo(180L, tolerance)); // 120
+		assertThat(pollTimeOffsets.get(3), closeTo(360L, tolerance)); // 180
+		assertThat(pollTimeOffsets.get(4), closeTo(420L, tolerance)); // back to 60
+	}
+
+	public static class LongCloseTo extends TypeSafeMatcher<Long> {
+		private final Long value;
+		private final Long delta;
+
+		/**
+		 * Creates a matcher of Long that matches when an examined Long is equal
+		 * to the specified <code>operand</code>, within a range of +/-
+		 * <code>error</code>.
+		 * @param value
+		 *            the expected value of matching Long
+		 * @param error
+		 *            the delta (+/-) within which matches will be allowed
+		 */
+		public static org.hamcrest.Matcher<Long> closeTo(final Long value, final Long error) {
+			return new TestController.LongCloseTo(value, error);
+		}
+
+		public LongCloseTo(final Long value, final Long error) {
+			this.value = value;
+			this.delta = error;
+		}
+
+		@Override
+		public void describeMismatchSafely(final Long item, final Description mismatchDescription) {
+			mismatchDescription.appendValue(item).appendText(" differed by ").appendValue(actualDelta(item))
+					.appendText(" more than delta ").appendValue(delta);
+		}
+
+		@Override
+		public void describeTo(final Description description) {
+			description.appendText("a numeric value within ").appendValue(delta).appendText(" of ").appendValue(value);
+		}
+
+		private Long actualDelta(final Long item) {
+			return Math.abs(item - value) - delta;
+		}
+
+		@Override
+		protected boolean matchesSafely(final Long item) {
+		      return actualDelta(item) <= 0;
+		}
 	}
 
 	@Test
@@ -134,7 +187,7 @@ public class TestController {
 
 		startController();
 
-		ThreadUtils.waitNoInterruption(4000);
+		sleeper.sleep(4000);
 		controller.stop();
 
 		verify(tweeter).tweet(dbRecord1);
@@ -149,7 +202,7 @@ public class TestController {
 	}
 
 	private long nowSeconds() {
-		return System.currentTimeMillis() / 1000;
+		return sleeper.currentTimeMillis() / 1000;
 	}
 
 	private Timestamp secsFromEpoch(final long secondsFromEpoch) {
@@ -159,12 +212,13 @@ public class TestController {
 
 	private void startController() {
 		controllerThread = new Thread(new Runnable() {
-		
+
 			@Override
 			public void run() {
-				controller = new Controller(config, persister, pageBuilder, tweeter, sitePoller);
+				controller = new Controller(config, persister, pageBuilder, tweeter, sitePoller, sleeper);
 				controller.start();
-			}});
+			}
+		});
 		controllerThread.setDaemon(true);
 		controllerThread.start();
 	}
