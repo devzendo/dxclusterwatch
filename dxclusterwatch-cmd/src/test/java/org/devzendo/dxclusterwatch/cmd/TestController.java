@@ -55,7 +55,7 @@ public class TestController {
 	private Thread controllerThread; // controller start() is blocking, so need to start it elsewhere.
 	private volatile Controller controller;
 	
-	private final Sleeper sleeper = new Sleeper(100);
+	private Sleeper sleeper = new Sleeper(100);
 
 	@Mock
 	private Config config;
@@ -133,6 +133,49 @@ public class TestController {
 		assertThat(pollTimeOffsets.get(2), closeTo(180L, tolerance)); // 120
 		assertThat(pollTimeOffsets.get(3), closeTo(360L, tolerance)); // 180
 		assertThat(pollTimeOffsets.get(4), closeTo(420L, tolerance)); // back to 60
+	}
+
+	@Test
+	public void sitePollerFailureBackoffHasALimit() throws Exception {
+		sleeper = new Sleeper(1000);
+		configExpectations();
+		final long start = nowSeconds();
+		final List<Long> pollTimeOffsets = new ArrayList<>();
+		final List<Long> pollIntervals = new ArrayList<>();
+		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
+			@Override
+			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
+				final long timeOffset = nowSeconds() - start;
+				LOGGER.debug("Recording poll time offset of {}", timeOffset);
+				pollTimeOffsets.add(timeOffset);
+				final long pollInterval = pollTimeOffsets.get(pollTimeOffsets.size() - 1) - (pollTimeOffsets.size() == 1 ? 0 : pollTimeOffsets.get(pollTimeOffsets.size() - 2));
+				pollIntervals.add(pollInterval);
+				LOGGER.debug("Time since last {}", pollInterval);
+				throw new ClientHandlerException("could not connect");
+			}
+		});
+		when(persister.getNextRecordToTweet()).thenReturn(null);
+
+		startController();
+
+		sleeper.sleep(4600000);
+		controller.stop();
+
+		assertThat(pollIntervals, Matchers.hasSize(13));
+		final long tolerance = 5L;
+		assertThat(pollIntervals.get(0), closeTo(0L, tolerance));
+		assertThat(pollIntervals.get(1), closeTo(60L, tolerance));
+		assertThat(pollIntervals.get(2), closeTo(120L, tolerance));
+		assertThat(pollIntervals.get(3), closeTo(180L, tolerance));
+		assertThat(pollIntervals.get(4), closeTo(240L, tolerance));
+		assertThat(pollIntervals.get(5), closeTo(300L, tolerance));
+		assertThat(pollIntervals.get(6), closeTo(360L, tolerance));
+		assertThat(pollIntervals.get(7), closeTo(420L, tolerance));
+		assertThat(pollIntervals.get(8), closeTo(480L, tolerance));
+		assertThat(pollIntervals.get(9), closeTo(540L, tolerance));
+		assertThat(pollIntervals.get(10), closeTo(600L, tolerance));
+		assertThat(pollIntervals.get(11), closeTo(600L, tolerance));
+		assertThat(pollIntervals.get(12), closeTo(600L, tolerance));
 	}
 
 	public static class LongCloseTo extends TypeSafeMatcher<Long> {

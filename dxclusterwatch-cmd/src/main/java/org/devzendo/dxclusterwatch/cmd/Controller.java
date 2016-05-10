@@ -86,7 +86,11 @@ public class Controller {
 						}
 					}					
 				} catch (final RuntimeException re) {
-					backoffCount ++;
+					// Don't increase backoff without bound
+					if (backoffCount < 10) {
+						backoffCount ++;
+						LOGGER.debug("Poll backoff count now {}", backoffCount);
+					}
 					final long secs = 60 * backoffCount;
 					nextPollTime = nowSeconds() + secs;
 					LOGGER.warn("Could not poll cluster: " + re.getMessage() + ": next attempt in " + secs + " seconds");
