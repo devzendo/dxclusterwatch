@@ -85,6 +85,7 @@ public class TestController {
 	@Test
 	public void recordsReceivedFromSitePollerAreHandled() throws Exception {
 		configExpectations();
+		when(config.isFeedReadingEnabled()).thenReturn(true);
 		when(sitePoller.poll()).thenReturn(records);
 		when(persister.persistRecords(records)).thenReturn(2);
 		when(persister.getNextRecordToTweet()).thenReturn(null);
@@ -101,6 +102,7 @@ public class TestController {
 	@Test
 	public void sitePollerFailureTriggersBackoff() throws Exception {
 		configExpectations();
+		when(config.isFeedReadingEnabled()).thenReturn(true);
 		final long start = nowSeconds();
 		final List<Long> pollTimeOffsets = new ArrayList<>();
 		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
@@ -137,8 +139,9 @@ public class TestController {
 
 	@Test
 	public void sitePollerFailureBackoffHasALimit() throws Exception {
-		sleeper = new Sleeper(1000);
+		sleeper = new Sleeper(750);
 		configExpectations();
+		when(config.isFeedReadingEnabled()).thenReturn(true);
 		final long start = nowSeconds();
 		final List<Long> pollTimeOffsets = new ArrayList<>();
 		final List<Long> pollIntervals = new ArrayList<>();
@@ -176,6 +179,39 @@ public class TestController {
 		assertThat(pollIntervals.get(10), closeTo(600L, tolerance));
 		assertThat(pollIntervals.get(11), closeTo(600L, tolerance));
 		assertThat(pollIntervals.get(12), closeTo(600L, tolerance));
+	}
+
+	@Test
+	public void sitePollerCanBeDisabled() throws Exception {
+		sleeper = new Sleeper(100);
+		configExpectations();
+		when(config.isFeedReadingEnabled()).thenReturn(true, true, false, false, true, true);
+
+		final long start = nowSeconds();
+		final List<Long> pollTimeOffsets = new ArrayList<>();
+		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
+			@Override
+			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
+				final long timeOffset = nowSeconds() - start;
+				LOGGER.debug("Recording poll time offset of {}", timeOffset);
+				pollTimeOffsets.add(timeOffset);
+				return new ClusterRecord[0]; // nothing to return
+			}
+		});
+		when(persister.getNextRecordToTweet()).thenReturn(null);
+
+		startController();
+
+		sleeper.sleep(350000);
+		controller.stop();
+
+		assertThat(pollTimeOffsets, Matchers.hasSize(4));
+		final long tolerance = 5L;
+		assertThat(pollTimeOffsets.get(0), closeTo(0L, tolerance));
+		assertThat(pollTimeOffsets.get(1), closeTo(60L, tolerance));
+		// ... a gap when polling was disabled ...
+		assertThat(pollTimeOffsets.get(2), closeTo(240L, tolerance));
+		assertThat(pollTimeOffsets.get(3), closeTo(300L, tolerance));
 	}
 
 	public static class LongCloseTo extends TypeSafeMatcher<Long> {

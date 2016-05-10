@@ -68,34 +68,39 @@ public class Controller {
 		while (running.get()) {
 			final int pollSeconds = config.getPollMinutes() * 60;
 			if (nowSeconds() >= nextPollTime) {
-				try {
-					LOGGER.info("Polling DXCluster...");
-					final ClusterRecord[] records = sitePoller.poll();
-					backoffCount = 0;
-					nextPollTime = nowSeconds() + pollSeconds;
-					LOGGER.debug("Next poll in " + pollSeconds + " secs");
-					if (records.length > 0) {
-						LOGGER.debug("Persisting " + records.length + " records");
-						final int newRecords = persister.persistRecords(records);
-						if (newRecords > 0) {
-							LOGGER.info("Rebuilding page #" + pageRebuildNumber);
-							pageRebuildNumber++;
-							pageBuilder.rebuildPage(records.length, newRecords);
-							LOGGER.info("Publishing page...");
-							pageBuilder.publishPage();
+				if (config.isFeedReadingEnabled()) {
+					try {
+						LOGGER.info("Polling DXCluster...");
+						final ClusterRecord[] records = sitePoller.poll();
+						backoffCount = 0;
+						nextPollTime = nowSeconds() + pollSeconds;
+						LOGGER.debug("Next poll in " + pollSeconds + " secs");
+						if (records.length > 0) {
+							LOGGER.debug("Persisting " + records.length + " records");
+							final int newRecords = persister.persistRecords(records);
+							if (newRecords > 0) {
+								LOGGER.info("Rebuilding page #" + pageRebuildNumber);
+								pageRebuildNumber++;
+								pageBuilder.rebuildPage(records.length, newRecords);
+								LOGGER.info("Publishing page...");
+								pageBuilder.publishPage();
+							}
+						}					
+					} catch (final RuntimeException re) {
+						// Don't increase backoff without bound
+						if (backoffCount < 10) {
+							backoffCount ++;
+							LOGGER.debug("Poll backoff count now {}", backoffCount);
 						}
-					}					
-				} catch (final RuntimeException re) {
-					// Don't increase backoff without bound
-					if (backoffCount < 10) {
-						backoffCount ++;
-						LOGGER.debug("Poll backoff count now {}", backoffCount);
+						final long secs = 60 * backoffCount;
+						nextPollTime = nowSeconds() + secs;
+						LOGGER.warn("Could not poll cluster: " + re.getMessage() + ": next attempt in " + secs + " seconds");
 					}
-					final long secs = 60 * backoffCount;
-					nextPollTime = nowSeconds() + secs;
-					LOGGER.warn("Could not poll cluster: " + re.getMessage() + ": next attempt in " + secs + " seconds");
+				} else {
+					LOGGER.info("Polling of DXCluster is disabled");
+					nextPollTime = nowSeconds() + pollSeconds;
 				}
-			}
+			}			
 			
 			final int tweetSeconds = config.getTweetSeconds();
 			if (nowSeconds() >= nextTweet) {
