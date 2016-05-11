@@ -121,7 +121,7 @@ public class Controller {
 						tweetBackoffCount ++;
 						final long secs = 60 * tweetBackoffCount;
 						nextTweet = nowSeconds() + secs;
-						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage() + ": next attempt in " + secs + " seconds");
+						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage() + ": next attempt in " + secs + " seconds; backoff count is {}", tweetBackoffCount);
 					}
 				}
 			}
