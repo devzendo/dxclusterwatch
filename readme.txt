@@ -36,8 +36,8 @@ serverURI= (server URI, typically https://www.dxcluster.co.uk/index.php?/api/all
 
 Things to change for next run:
 2) add crowbars: disable flags in the config for
-   a) reading from the API
-   b) updating the webpage
+   a) reading from the API (done)
+   b) updating the webpage (done)
    c) posting to twitter
 3) fix the init.d script to actually stop the process (not sure why this didn't work)
 4) package as .deb
@@ -60,6 +60,7 @@ Things to change for next run:
 8) also a map of all stations and the frequencies they've been heard on (with last heard time for that frequency)
 9) go over the log file for the day, downgrade useless diagnostics.
 10) reconstruct the data feed from log.
+11) create a non-bitbucket publisher: upload to SFTP server.
                    
                    
                    

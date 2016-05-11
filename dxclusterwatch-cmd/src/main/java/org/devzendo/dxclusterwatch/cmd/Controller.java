@@ -79,11 +79,15 @@ public class Controller {
 							LOGGER.debug("Persisting " + records.length + " records");
 							final int newRecords = persister.persistRecords(records);
 							if (newRecords > 0) {
-								LOGGER.info("Rebuilding page #" + pageRebuildNumber);
-								pageRebuildNumber++;
-								pageBuilder.rebuildPage(records.length, newRecords);
-								LOGGER.info("Publishing page...");
-								pageBuilder.publishPage();
+								if (config.isPageUpdatingEnabled()) {
+									LOGGER.info("Rebuilding page #" + pageRebuildNumber);
+									pageRebuildNumber++;
+									pageBuilder.rebuildPage(records.length, newRecords);
+									LOGGER.info("Publishing page...");
+									pageBuilder.publishPage();
+								} else {
+									LOGGER.info("Publishing of updated pages is disabled");
+								}
 							}
 						}					
 					} catch (final RuntimeException re) {

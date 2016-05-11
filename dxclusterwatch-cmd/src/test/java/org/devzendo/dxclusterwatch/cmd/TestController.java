@@ -3,6 +3,7 @@ package org.devzendo.dxclusterwatch.cmd;
 import static org.devzendo.dxclusterwatch.cmd.TestController.LongCloseTo.closeTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -86,6 +88,7 @@ public class TestController {
 	public void recordsReceivedFromSitePollerAreHandled() throws Exception {
 		configExpectations();
 		when(config.isFeedReadingEnabled()).thenReturn(true);
+		when(config.isPageUpdatingEnabled()).thenReturn(true);
 		when(sitePoller.poll()).thenReturn(records);
 		when(persister.persistRecords(records)).thenReturn(2);
 		when(persister.getNextRecordToTweet()).thenReturn(null);
@@ -97,6 +100,24 @@ public class TestController {
 
 		verify(pageBuilder).rebuildPage(2, 2);
 		verify(pageBuilder).publishPage();
+	}
+
+	@Test
+	public void publishingCanBeDisabled() throws Exception {
+		configExpectations();
+		when(config.isFeedReadingEnabled()).thenReturn(true);
+		when(config.isPageUpdatingEnabled()).thenReturn(false);
+		when(sitePoller.poll()).thenReturn(records);
+		when(persister.persistRecords(records)).thenReturn(2);
+		when(persister.getNextRecordToTweet()).thenReturn(null);
+
+		startController();
+
+		sleeper.sleep(2500);
+		controller.stop();
+
+		verify(pageBuilder, never()).rebuildPage(Mockito.anyInt(), Mockito.anyInt());
+		verify(pageBuilder, never()).publishPage();
 	}
 
 	@Test
