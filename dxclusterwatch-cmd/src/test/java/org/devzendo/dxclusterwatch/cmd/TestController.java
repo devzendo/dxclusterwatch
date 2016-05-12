@@ -280,6 +280,51 @@ public class TestController {
 		assertThat(tweetIntervals.get(4), closeTo(1L, tolerance)); // back to tweetSeconds (1)
 	}
 
+	@Test
+	public void tweetFailureBackoffHasALimit() throws Exception {
+		sleeper = new Sleeper(500);
+		configExpectations();
+		// lie a little - disable feed reading, but say there is a persisted
+		// record to tweet.
+		when(config.isFeedReadingEnabled()).thenReturn(false);
+		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
+		final long start = nowSeconds();
+		final List<Long> tweetTimeOffsets = new ArrayList<>();
+		final List<Long> tweetIntervals = new ArrayList<>();
+		Mockito.doAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) throws Throwable {
+				final long timeOffset = nowSeconds() - start;
+				tweetTimeOffsets.add(timeOffset);
+				final long tweetInterval = tweetTimeOffsets.get(tweetTimeOffsets.size() - 1) - (tweetTimeOffsets.size() == 1 ? 0 : tweetTimeOffsets.get(tweetTimeOffsets.size() - 2));
+				tweetIntervals.add(tweetInterval);
+				LOGGER.debug("Time since last tweet failure {}", tweetInterval);
+				throw new RuntimeException("could not tweet");
+			}
+		}).when(tweeter).tweet(dbRecord1);
+
+		startController();
+
+		sleeper.sleep(4600000);
+		controller.stop();
+
+		assertThat(tweetIntervals, Matchers.hasSize(13));
+		final long tolerance = 5L;
+		assertThat(tweetIntervals.get(0), closeTo(0L, tolerance));
+		assertThat(tweetIntervals.get(1), closeTo(60L, tolerance));
+		assertThat(tweetIntervals.get(2), closeTo(120L, tolerance));
+		assertThat(tweetIntervals.get(3), closeTo(180L, tolerance));
+		assertThat(tweetIntervals.get(4), closeTo(240L, tolerance));
+		assertThat(tweetIntervals.get(5), closeTo(300L, tolerance));
+		assertThat(tweetIntervals.get(6), closeTo(360L, tolerance));
+		assertThat(tweetIntervals.get(7), closeTo(420L, tolerance));
+		assertThat(tweetIntervals.get(8), closeTo(480L, tolerance));
+		assertThat(tweetIntervals.get(9), closeTo(540L, tolerance));
+		assertThat(tweetIntervals.get(10), closeTo(600L, tolerance));
+		assertThat(tweetIntervals.get(11), closeTo(600L, tolerance));
+		assertThat(tweetIntervals.get(12), closeTo(600L, tolerance));
+	}
+
 	public static class LongCloseTo extends TypeSafeMatcher<Long> {
 		private final Long value;
 		private final Long delta;

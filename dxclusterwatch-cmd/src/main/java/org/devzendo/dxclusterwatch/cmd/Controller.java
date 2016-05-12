@@ -118,10 +118,14 @@ public class Controller {
 						persister.markTweeted(nextRecordToTweet);
 						nextTweet = nowSeconds() + tweetSeconds;
 					} catch (final RuntimeException re) {
-						tweetBackoffCount ++;
+						// Don't increase backoff without bound
+						if (tweetBackoffCount < 10) {
+							tweetBackoffCount ++;
+							LOGGER.debug("Tweet backoff count now {}", tweetBackoffCount);
+						}
 						final long secs = 60 * tweetBackoffCount;
 						nextTweet = nowSeconds() + secs;
-						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage() + ": next attempt in " + secs + " seconds; backoff count is {}", tweetBackoffCount);
+						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage() + ": next attempt in " + secs + " seconds");
 					}
 				}
 			}
