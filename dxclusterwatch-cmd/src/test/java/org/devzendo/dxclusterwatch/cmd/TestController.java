@@ -241,6 +241,7 @@ public class TestController {
 		// lie a little - disable feed reading, but say there is a persisted
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
+		when(config.isTweetingEnabled()).thenReturn(true);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord1, dbRecord1, dbRecord1, dbRecord1, null, null );
 		final long start = nowSeconds();
 		final List<Long> tweetTimeOffsets = new ArrayList<>();
@@ -287,10 +288,12 @@ public class TestController {
 		// lie a little - disable feed reading, but say there is a persisted
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
+		when(config.isTweetingEnabled()).thenReturn(true);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
 		final long start = nowSeconds();
 		final List<Long> tweetTimeOffsets = new ArrayList<>();
 		final List<Long> tweetIntervals = new ArrayList<>();
+		final CountDownLatch done = new CountDownLatch(1);
 		Mockito.doAnswer(new Answer<Object>() {
 			@Override
 			public Object answer(final InvocationOnMock invocation) throws Throwable {
@@ -298,6 +301,10 @@ public class TestController {
 				tweetTimeOffsets.add(timeOffset);
 				final long tweetInterval = tweetTimeOffsets.get(tweetTimeOffsets.size() - 1) - (tweetTimeOffsets.size() == 1 ? 0 : tweetTimeOffsets.get(tweetTimeOffsets.size() - 2));
 				tweetIntervals.add(tweetInterval);
+				if (tweetIntervals.size() == 13) {
+					LOGGER.debug("All data collected; stopping");
+					done.countDown();
+				}
 				LOGGER.debug("Time since last tweet failure {}", tweetInterval);
 				throw new RuntimeException("could not tweet");
 			}
@@ -305,7 +312,7 @@ public class TestController {
 
 		startController();
 
-		sleeper.sleep(4600000);
+		done.await();
 		controller.stop();
 
 		assertThat(tweetIntervals, Matchers.hasSize(13));
@@ -417,6 +424,7 @@ public class TestController {
 	public void recordsReceivedFromSitePollerAreTweeted() throws Exception {
 		configExpectations();
 		when(sitePoller.poll()).thenReturn(records);
+		when(config.isTweetingEnabled()).thenReturn(true);
 		when(persister.persistRecords(records)).thenReturn(2);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord2, null);
 
