@@ -335,7 +335,7 @@ public class TestController {
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
-		when(config.isTweetingEnable()).thenReturn(true, true, false, false, true, true);
+		when(config.isTweetingEnabled()).thenReturn(true, true, false, false, true, true);
 
 		final long start = nowSeconds();
 		final List<Long> tweetTimeOffsets = new ArrayList<>();

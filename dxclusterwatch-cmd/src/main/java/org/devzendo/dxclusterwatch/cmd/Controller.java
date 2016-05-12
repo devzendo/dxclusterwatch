@@ -111,7 +111,7 @@ public class Controller {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
 					try {
-						if (config.isTweetingEnable()) {
+						if (config.isTweetingEnabled()) {
 							LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet.toDbString());
 							tweeter.tweet(nextRecordToTweet);
 							tweetBackoffCount = 0;

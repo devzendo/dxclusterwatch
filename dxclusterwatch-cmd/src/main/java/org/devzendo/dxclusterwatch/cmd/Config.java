@@ -34,6 +34,6 @@ public interface Config {
 
 	boolean isPageUpdatingEnabled();
 
-	boolean isTweetingEnable();
+	boolean isTweetingEnabled();
 
 }

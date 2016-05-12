@@ -125,7 +125,7 @@ public class PropertiesConfig implements Config {
 	}
 
 	@Override
-	public boolean isTweetingEnable() {
+	public boolean isTweetingEnabled() {
 		readConfigurationFromPropertiesFile();
 		return enableTweeting;
 	}

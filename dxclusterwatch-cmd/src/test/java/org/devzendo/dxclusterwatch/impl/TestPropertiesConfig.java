@@ -343,7 +343,7 @@ public class TestPropertiesConfig {
 		assertThat(config.getMaxListingEntries(), equalTo(20));
 		assertThat(config.isFeedReadingEnabled(), equalTo(feedReadingEnabled));
 		assertThat(config.isPageUpdatingEnabled(), equalTo(true));
-		assertThat(config.isTweetingEnable(), equalTo(false));
+		assertThat(config.isTweetingEnabled(), equalTo(false));
 		assertThat(config.getServerURI(), equalTo(URI.create("http://localhost:5645")));
 	}
 
