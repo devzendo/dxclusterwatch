@@ -169,11 +169,12 @@ public class TestController {
 		sleeper = new Sleeper(750);
 		configExpectations();
 		when(config.isFeedReadingEnabled()).thenReturn(true);
-		final long start = nowSeconds();
-		final List<Long> pollTimeOffsets = new ArrayList<>();
 		final List<Long> pollIntervals = new ArrayList<>();
 		final CountDownLatch done = new CountDownLatch(1);
+
 		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
+			final long start = nowSeconds();
+			final List<Long> pollTimeOffsets = new ArrayList<>();
 			@Override
 			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
 				final long timeOffset = nowSeconds() - start;
@@ -189,6 +190,7 @@ public class TestController {
 				throw new ClientHandlerException("could not connect");
 			}
 		});
+
 		when(persister.getNextRecordToTweet()).thenReturn(null);
 
 		startController();
@@ -218,11 +220,11 @@ public class TestController {
 		configExpectations();
 		when(config.isFeedReadingEnabled()).thenReturn(true, true, false, false, true, true);
 
-		final long start = nowSeconds();
 		final List<Long> pollTimeOffsets = new ArrayList<>();
 		final CountDownLatch done = new CountDownLatch(1);
 
 		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
+			final long start = nowSeconds();
 			@Override
 			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
 				final long timeOffset = nowSeconds() - start;
@@ -235,6 +237,7 @@ public class TestController {
 				return new ClusterRecord[0]; // nothing to return
 			}
 		});
+		
 		when(persister.getNextRecordToTweet()).thenReturn(null);
 
 		startController();
@@ -259,12 +262,12 @@ public class TestController {
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(config.isTweetingEnabled()).thenReturn(true);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord1, dbRecord1, dbRecord1, dbRecord1, null, null );
-		final long start = nowSeconds();
-		final List<Long> tweetTimeOffsets = new ArrayList<>();
 		final List<Long> tweetIntervals = new ArrayList<>();
 		final CountDownLatch done = new CountDownLatch(1);
 
 		Mockito.doAnswer(new Answer<Object>() {
+			final long start = nowSeconds();
+			final List<Long> tweetTimeOffsets = new ArrayList<>();
 			@Override
 			public Object answer(final InvocationOnMock invocation) throws Throwable {
 				final boolean failing = tweetTimeOffsets.size() < 3;
@@ -311,11 +314,13 @@ public class TestController {
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(config.isTweetingEnabled()).thenReturn(true);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
-		final long start = nowSeconds();
-		final List<Long> tweetTimeOffsets = new ArrayList<>();
+
 		final List<Long> tweetIntervals = new ArrayList<>();
 		final CountDownLatch done = new CountDownLatch(1);
+
 		Mockito.doAnswer(new Answer<Object>() {
+			final long start = nowSeconds();
+			final List<Long> tweetTimeOffsets = new ArrayList<>();
 			@Override
 			public Object answer(final InvocationOnMock invocation) throws Throwable {
 				final long timeOffset = nowSeconds() - start;
@@ -365,10 +370,11 @@ public class TestController {
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
 		when(config.isTweetingEnabled()).thenReturn(true, true, false, false, true, true);
 
-		final long start = nowSeconds();
 		final List<Long> tweetTimeOffsets = new ArrayList<>();
 		final CountDownLatch done = new CountDownLatch(1);
+
 		Mockito.doAnswer(new Answer<Object>() {
+			final long start = nowSeconds();
 			@Override
 			public Object answer(final InvocationOnMock invocation) throws Throwable {
 				final long timeOffset = nowSeconds() - start;
