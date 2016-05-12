@@ -127,6 +127,7 @@ public class TestController {
 		when(config.isFeedReadingEnabled()).thenReturn(true);
 		final long start = nowSeconds();
 		final List<Long> pollTimeOffsets = new ArrayList<>();
+		final CountDownLatch done = new CountDownLatch(1);
 		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
 			@Override
 			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
@@ -134,6 +135,10 @@ public class TestController {
 				final long timeOffset = nowSeconds() - start;
 				LOGGER.debug("Recording poll time offset of {}", timeOffset);
 				pollTimeOffsets.add(timeOffset);
+				if (pollTimeOffsets.size() == 5) {
+					LOGGER.debug("All records collected; stopping");
+					done.countDown();
+				}
 				if (failing) {
 					LOGGER.debug("Simulating connection failure");
 					throw new ClientHandlerException("could not connect");
@@ -147,7 +152,7 @@ public class TestController {
 
 		startController();
 
-		sleeper.sleep(440000);
+		done.await();
 		controller.stop();
 
 		assertThat(pollTimeOffsets, Matchers.hasSize(5));
@@ -167,6 +172,7 @@ public class TestController {
 		final long start = nowSeconds();
 		final List<Long> pollTimeOffsets = new ArrayList<>();
 		final List<Long> pollIntervals = new ArrayList<>();
+		final CountDownLatch done = new CountDownLatch(1);
 		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
 			@Override
 			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
@@ -176,6 +182,10 @@ public class TestController {
 				final long pollInterval = pollTimeOffsets.get(pollTimeOffsets.size() - 1) - (pollTimeOffsets.size() == 1 ? 0 : pollTimeOffsets.get(pollTimeOffsets.size() - 2));
 				pollIntervals.add(pollInterval);
 				LOGGER.debug("Time since last {}", pollInterval);
+				if (pollIntervals.size() == 13) {
+					LOGGER.debug("All records collected; stopping");
+					done.countDown();
+				}
 				throw new ClientHandlerException("could not connect");
 			}
 		});
@@ -183,7 +193,7 @@ public class TestController {
 
 		startController();
 
-		sleeper.sleep(4600000);
+		done.await();
 		controller.stop();
 
 		assertThat(pollIntervals, Matchers.hasSize(13));
@@ -210,12 +220,18 @@ public class TestController {
 
 		final long start = nowSeconds();
 		final List<Long> pollTimeOffsets = new ArrayList<>();
+		final CountDownLatch done = new CountDownLatch(1);
+
 		when(sitePoller.poll()).thenAnswer(new Answer<ClusterRecord[]>() {
 			@Override
 			public ClusterRecord[] answer(final InvocationOnMock invocation) throws Throwable {
 				final long timeOffset = nowSeconds() - start;
 				LOGGER.debug("Recording poll time offset of {}", timeOffset);
 				pollTimeOffsets.add(timeOffset);
+				if (pollTimeOffsets.size() == 4) {
+					LOGGER.debug("All records collected; stopping");
+					done.countDown();
+				}
 				return new ClusterRecord[0]; // nothing to return
 			}
 		});
@@ -223,7 +239,7 @@ public class TestController {
 
 		startController();
 
-		sleeper.sleep(350000);
+		done.await();
 		controller.stop();
 
 		assertThat(pollTimeOffsets, Matchers.hasSize(4));
@@ -246,6 +262,7 @@ public class TestController {
 		final long start = nowSeconds();
 		final List<Long> tweetTimeOffsets = new ArrayList<>();
 		final List<Long> tweetIntervals = new ArrayList<>();
+		final CountDownLatch done = new CountDownLatch(1);
 
 		Mockito.doAnswer(new Answer<Object>() {
 			@Override
@@ -263,13 +280,17 @@ public class TestController {
 				// else, it's been tweeted, no exception, void return
 				// but Mockito demands feeding
 				LOGGER.debug("Tweet!");
+				if (tweetIntervals.size() == 5) {
+					LOGGER.debug("All records collected; stopping");
+					done.countDown();
+				}
 				return null;
 			}
 		}).when(tweeter).tweet(dbRecord1);
 
 		startController();
 
-		sleeper.sleep(610000);
+		done.await();
 		controller.stop();
 
 		assertThat(tweetIntervals, Matchers.hasSize(5));
