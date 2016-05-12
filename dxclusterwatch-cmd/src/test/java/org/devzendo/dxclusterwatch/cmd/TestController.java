@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
@@ -204,7 +205,6 @@ public class TestController {
 
 	@Test
 	public void sitePollerCanBeDisabled() throws Exception {
-		sleeper = new Sleeper(100);
 		configExpectations();
 		when(config.isFeedReadingEnabled()).thenReturn(true, true, false, false, true, true);
 
@@ -323,6 +323,51 @@ public class TestController {
 		assertThat(tweetIntervals.get(10), closeTo(600L, tolerance));
 		assertThat(tweetIntervals.get(11), closeTo(600L, tolerance));
 		assertThat(tweetIntervals.get(12), closeTo(600L, tolerance));
+	}
+
+	@Test
+	public void tweetingCanBeDisabled() throws Exception {
+		sleeper = new Sleeper(32); // small delay, needs better time accuracy
+		configExpectations();
+		when(config.getTweetSeconds()).thenReturn(5); // need a greater delay to get more accuracy
+		
+		// lie a little - disable feed reading, but say there is a persisted
+		// record to tweet.
+		when(config.isFeedReadingEnabled()).thenReturn(false);
+		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
+		when(config.isTweetingEnable()).thenReturn(true, true, false, false, true, true);
+
+		final long start = nowSeconds();
+		final List<Long> tweetTimeOffsets = new ArrayList<>();
+		final CountDownLatch done = new CountDownLatch(1);
+		Mockito.doAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) throws Throwable {
+				final long timeOffset = nowSeconds() - start;
+				LOGGER.debug("Tweet! At offset {}", timeOffset);
+				tweetTimeOffsets.add(timeOffset);
+				if (tweetTimeOffsets.size() == 4) {
+					LOGGER.debug("Got enough collected times; stopping");
+					done.countDown();
+				}
+				// it's been tweeted, no exception, void return
+				// but Mockito demands feeding
+				return null;			
+			}
+		}).when(tweeter).tweet(dbRecord1);
+
+		startController();
+
+		done.await();
+		controller.stop();
+
+		assertThat(tweetTimeOffsets, Matchers.hasSize(4));
+		final long tolerance = 5L;
+		assertThat(tweetTimeOffsets.get(0), closeTo(0L, tolerance));
+		assertThat(tweetTimeOffsets.get(1), closeTo(5L, tolerance));
+		// ... a gap when tweeting was disabled ...
+		assertThat(tweetTimeOffsets.get(2), closeTo(20L, tolerance));
+		assertThat(tweetTimeOffsets.get(3), closeTo(25L, tolerance));
 	}
 
 	public static class LongCloseTo extends TypeSafeMatcher<Long> {

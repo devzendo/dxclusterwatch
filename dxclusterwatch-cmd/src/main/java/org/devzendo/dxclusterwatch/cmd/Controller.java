@@ -111,11 +111,15 @@ public class Controller {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
 					try {
-						LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet.toDbString());
-						tweeter.tweet(nextRecordToTweet);
-						tweetBackoffCount = 0;
-						tweetNumber++;
-						persister.markTweeted(nextRecordToTweet);
+						if (config.isTweetingEnable()) {
+							LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet.toDbString());
+							tweeter.tweet(nextRecordToTweet);
+							tweetBackoffCount = 0;
+							tweetNumber++;
+							persister.markTweeted(nextRecordToTweet);
+						} else {
+							LOGGER.info("Tweeting is disabled");
+						}
 						nextTweet = nowSeconds() + tweetSeconds;
 					} catch (final RuntimeException re) {
 						// Don't increase backoff without bound
