@@ -1,6 +1,6 @@
 package org.devzendo.dxclusterwatch.cmd;
 
-import static org.devzendo.dxclusterwatch.cmd.TestController.LongCloseTo.closeTo;
+import static org.devzendo.dxclusterwatch.cmd.LongCloseTo.closeTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.never;
@@ -14,9 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
-import org.hamcrest.Description;
 import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -402,49 +400,6 @@ public class TestController {
 		// ... a gap when tweeting was disabled ...
 		assertThat(tweetTimeOffsets.get(2), closeTo(20L, tolerance));
 		assertThat(tweetTimeOffsets.get(3), closeTo(25L, tolerance));
-	}
-
-	public static class LongCloseTo extends TypeSafeMatcher<Long> {
-		private final Long value;
-		private final Long delta;
-
-		/**
-		 * Creates a matcher of Long that matches when an examined Long is equal
-		 * to the specified <code>operand</code>, within a range of +/-
-		 * <code>error</code>.
-		 * @param value
-		 *            the expected value of matching Long
-		 * @param error
-		 *            the delta (+/-) within which matches will be allowed
-		 */
-		public static org.hamcrest.Matcher<Long> closeTo(final Long value, final Long error) {
-			return new TestController.LongCloseTo(value, error);
-		}
-
-		public LongCloseTo(final Long value, final Long error) {
-			this.value = value;
-			this.delta = error;
-		}
-
-		@Override
-		public void describeMismatchSafely(final Long item, final Description mismatchDescription) {
-			mismatchDescription.appendValue(item).appendText(" differed by ").appendValue(actualDelta(item))
-					.appendText(" more than delta ").appendValue(delta);
-		}
-
-		@Override
-		public void describeTo(final Description description) {
-			description.appendText("a numeric value within ").appendValue(delta).appendText(" of ").appendValue(value);
-		}
-
-		private Long actualDelta(final Long item) {
-			return Math.abs(item - value) - delta;
-		}
-
-		@Override
-		protected boolean matchesSafely(final Long item) {
-		      return actualDelta(item) <= 0;
-		}
 	}
 
 	@Test

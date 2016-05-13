@@ -38,7 +38,7 @@ Things to change for next run:
 2) add crowbars: disable flags in the config for
    a) reading from the API (done)
    b) updating the webpage (done)
-   c) posting to twitter
+   c) posting to twitter (done)
 3) fix the init.d script to actually stop the process (not sure why this didn't work)
 4) package as .deb
 5) add a deploy-to-host script; no need to go the full Ansible here... 
@@ -61,7 +61,8 @@ Things to change for next run:
 9) go over the log file for the day, downgrade useless diagnostics.
 10) reconstruct the data feed from log.
 11) create a non-bitbucket publisher: upload to SFTP server.
-                   
+12) include the date in the log4j log
+
                    
                    
    
