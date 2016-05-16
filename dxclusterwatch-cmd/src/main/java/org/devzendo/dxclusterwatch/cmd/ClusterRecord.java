@@ -35,8 +35,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class ClusterRecord {
 	private String band;
-	private String call;
-	private String comment;
+	private String call;           // persisted
+	private String comment;        // persisted
 	private String dx_cont;
 	private String dx_cqz;
 	private String dx_ituz;
@@ -44,10 +44,10 @@ public class ClusterRecord {
 	private String dx_long;
 	private String dx_name;
 	private String dx_prefix;
-	private String dxcall;
-	private String freq;
+	private String dxcall;         // persisted
+	private String freq;           // persisted
 	private String mytime;
-	private String nr;
+	private String nr;             // persisted
 	private String spotter_cont;
 	private String spotter_cqz;
 	private String spotter_ituz;
@@ -55,7 +55,7 @@ public class ClusterRecord {
 	private String spotter_long;
 	private String spotter_name;
 	private String spotter_prefix;
-	private String time;
+	private String time;           // persisted
 	
 	public String getMytime() {
 		return mytime;
