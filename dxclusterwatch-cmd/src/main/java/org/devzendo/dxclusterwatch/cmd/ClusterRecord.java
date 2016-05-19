@@ -55,7 +55,8 @@ public class ClusterRecord {
 	private String spotter_long;
 	private String spotter_name;
 	private String spotter_prefix;
-	private String time;           // persisted
+	private String time;           // persisted, returned as a String
+	private Timestamp timeAsTimeStamp; // persisted, returned as a Timestamp
 	
 	public String getMytime() {
 		return mytime;
@@ -190,6 +191,12 @@ public class ClusterRecord {
 	public void setTime(final String time) {
 		this.time = time;
 	}
+	private void setTimeAsTimestamp(final Timestamp when) {
+		this.timeAsTimeStamp = when;
+	}
+	public Timestamp getTimeAsTimestamp() {
+		return timeAsTimeStamp;
+	}
 	
 	@Override
 	public String toString() {
@@ -202,6 +209,7 @@ public class ClusterRecord {
 		r.setDxcall(StringUtils.defaultString(dxcall));
 		r.setCall(StringUtils.defaultString(call));
 		r.setTime(StringUtils.defaultString(when.toString()));
+		r.setTimeAsTimestamp(when);
 		r.setFreq(StringUtils.defaultString(freq));
 		r.setComment(StringUtils.defaultString(comment));
 		return r;

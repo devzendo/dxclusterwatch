@@ -146,4 +146,17 @@ public class H2Persister implements Persister {
 		final String sql = "SELECT TOP " + maxListingEntries + " * FROM Spots ORDER BY when DESC";
 		return template.query(sql, rowMapper);
 	}
+
+	@Override
+	public List<ClusterRecord> getRecordsBetween(final Timestamp start, final Timestamp end) {
+		final String sql = "SELECT * FROM Spots WHERE when BETWEEN ? AND ? ORDER BY when DESC";
+		return template.query(sql, rowMapper, start.toString(), end.toString());
+	}
+
+	@Override
+	public Timestamp getEarliestTimeRecord() {
+		final String sql = "SELECT TOP 1 * FROM Spots ORDER BY when ASC";
+		final ClusterRecord record = template.queryForObject(sql, rowMapper);
+		return record != null ? record.getTimeAsTimestamp() : null;
+	}
 }

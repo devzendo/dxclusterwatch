@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
 import org.devzendo.dxclusterwatch.cmd.Persister;
-import org.devzendo.dxclusterwatch.impl.H2Persister;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
 import org.h2.engine.ExistenceChecker;
 import org.junit.After;
@@ -138,6 +137,67 @@ public class TestH2Persister {
 		assertThat(records.get(4).getNr(), equalTo("3"));
 	}
 
+	@Test
+	public void canGetRecordsForPreviousNMinutes() throws Exception {
+		// should be returned
+		final ClusterRecord dbRecord1 = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", ago(5), "14060", "Hi Matt");
+		final ClusterRecord dbRecord2 = ClusterRecord.dbRecord(2, "GB3IMD", "M0CUV", ago(25), "7035", "UP 20");
+		final ClusterRecord dbRecord3 = ClusterRecord.dbRecord(3, "GB3MRS", "G0VAR", ago(35), "10118", "VY 73 OM");
+		final ClusterRecord dbRecord4 = ClusterRecord.dbRecord(4, "IY0GM", "F6IIS", ago(40), "3580", "Ciao Guglielmo");
+		
+		// should not be returned
+		final ClusterRecord dbRecord5 = ClusterRecord.dbRecord(5, "DL4IMD", "F6IIS", ago(45), "7040", "Sehr gut");
+		final ClusterRecord dbRecord6 = ClusterRecord.dbRecord(6, "GB4IMD", "G7JFJ", ago(47), "10220", "QRM");
+		final ClusterRecord dbRecord7 = ClusterRecord.dbRecord(7, "IY0GM", "G7JFJ", ago(50), "3585", "TNX FER QSL, OM");
+
+		store.persistRecords(new ClusterRecord[] { dbRecord1, dbRecord3, dbRecord2, dbRecord4, dbRecord5, dbRecord6, dbRecord7 });
+	
+		final List<ClusterRecord> last41 = store.getRecordsBetween(ago(42), ago(2)); // [ earliest .. most recent ]
+		assertThat(last41, hasSize(4));
+		assertThat(last41.get(0).getFreq(), equalTo("14060"));
+		assertThat(last41.get(1).getFreq(), equalTo("7035"));
+		assertThat(last41.get(2).getFreq(), equalTo("10118"));
+		assertThat(last41.get(3).getFreq(), equalTo("3580"));
+	}
+
+	@Test
+	public void cannotGetEarliestTimeRecordIfThereAreNone() throws Exception {
+		final Timestamp earliest = store.getEarliestTimeRecord();
+		assertThat(earliest, nullValue());
+	}
+
+	@Test
+	public void canGetEarliestTimeRecord() throws Exception {
+		final Timestamp ago5 = ago(5);
+		final ClusterRecord dbRecord1 = ClusterRecord.dbRecord(1, "GB4IMD", "M0CUV", ago5, "14060", "Hi Matt");
+
+		store.persistRecords(new ClusterRecord[] { dbRecord1 });
+		assertThat(store.getEarliestTimeRecord(), equalTo(ago5));
+
+		final ClusterRecord dbRecord2 = ClusterRecord.dbRecord(2, "GB3IMD", "M0CUV", ago(25), "7035", "UP 20");
+		final ClusterRecord dbRecord3 = ClusterRecord.dbRecord(3, "GB3MRS", "G0VAR", ago(35), "10118", "VY 73 OM");
+		final Timestamp ago50 = ago(50);
+		final ClusterRecord dbRecord4 = ClusterRecord.dbRecord(4, "IY0GM", "G7JFJ", ago50, "3585", "TNX FER QSL, OM");
+		store.persistRecords(new ClusterRecord[] { dbRecord2, dbRecord3, dbRecord4 });
+
+		final List<ClusterRecord> all = store.getRecords();
+		for (final ClusterRecord clusterRecord : all) {
+			LOGGER.debug("Record: {}", clusterRecord);
+		}
+
+		assertThat(store.getEarliestTimeRecord(), equalTo(ago50));
+
+		final Timestamp ago80 = ago(80);
+		final ClusterRecord dbRecord5 = ClusterRecord.dbRecord(5, "EA5YT", "G3ESG", ago80, "14069", "Great DX");
+		store.persistRecords(new ClusterRecord[] { dbRecord5 });
+		assertThat(store.getEarliestTimeRecord(), equalTo(ago80));
+	}
+
+	private Timestamp ago(final long minutesAgo) {
+		final long millisecondsAgo = System.currentTimeMillis() - (minutesAgo * 60000);
+		return new Timestamp(millisecondsAgo);
+	}
+	
 	private Timestamp when(final long secondsFromEpoch) {
 		final Timestamp when = new Timestamp(secondsFromEpoch * 1000);
 		return when;
