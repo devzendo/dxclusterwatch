@@ -12,6 +12,7 @@ import org.devzendo.dxclusterwatch.cmd.Persister;
 import org.h2.engine.ExistenceChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.RowMapper;
@@ -156,7 +157,11 @@ public class H2Persister implements Persister {
 	@Override
 	public Timestamp getEarliestTimeRecord() {
 		final String sql = "SELECT TOP 1 * FROM Spots ORDER BY when ASC";
-		final ClusterRecord record = template.queryForObject(sql, rowMapper);
-		return record != null ? record.getTimeAsTimestamp() : null;
+		try {
+			final ClusterRecord record = template.queryForObject(sql, rowMapper);
+			return record != null ? record.getTimeAsTimestamp() : null;
+		} catch (final EmptyResultDataAccessException empty) {
+			return null;
+		}
 	}
 }
