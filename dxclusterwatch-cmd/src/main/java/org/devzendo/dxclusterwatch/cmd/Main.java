@@ -6,6 +6,7 @@ import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.impl.BitbucketPagesPageBuilder;
 import org.devzendo.dxclusterwatch.impl.ConfigConfiguredTwitterFactory;
 import org.devzendo.dxclusterwatch.impl.DXClusterSitePoller;
+import org.devzendo.dxclusterwatch.impl.DefaultActivityWatcher;
 import org.devzendo.dxclusterwatch.impl.H2Persister;
 import org.devzendo.dxclusterwatch.impl.PropertiesConfig;
 import org.devzendo.dxclusterwatch.impl.Twitter4JTweeter;
@@ -34,7 +35,7 @@ public class Main {
 				
 				final DXClusterSitePoller sitePoller = new DXClusterSitePoller(prefsFactory.getPrefsDir(), config);
 
-				new Controller(config, persister, pageBuilder, tweeter, sitePoller, new Sleeper()).start();
+				new Controller(config, persister, pageBuilder, tweeter, sitePoller, new Sleeper(), new DefaultActivityWatcher()).start();
 			}
 			finally {
 				persister.close();

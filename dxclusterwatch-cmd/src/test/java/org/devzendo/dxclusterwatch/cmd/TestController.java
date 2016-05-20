@@ -68,6 +68,8 @@ public class TestController {
 	private Tweeter tweeter;
 	@Mock
 	private SitePoller sitePoller;
+	@Mock
+	private ActivityWatcher activityWatcher;
 
 	@Test
 	public void startsAndStops() {
@@ -440,7 +442,7 @@ public class TestController {
 
 			@Override
 			public void run() {
-				controller = new Controller(config, persister, pageBuilder, tweeter, sitePoller, sleeper);
+				controller = new Controller(config, persister, pageBuilder, tweeter, sitePoller, sleeper, activityWatcher);
 				controller.start();
 			}
 		});

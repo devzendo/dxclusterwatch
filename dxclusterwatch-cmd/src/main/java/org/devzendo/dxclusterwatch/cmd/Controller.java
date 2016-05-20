@@ -22,16 +22,19 @@ public class Controller {
 	private final Tweeter tweeter;
 	private final SitePoller sitePoller;
 	private final Sleeper sleeper;
+	private final ActivityWatcher activityWatcher;
 
 	private final SignalHandler oldIntHandler;
 
-	public Controller(final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller, final Sleeper sleeper) {
+
+	public Controller(final Config config, final Persister persister, final PageBuilder pageBuilder, final Tweeter tweeter, final SitePoller sitePoller, final Sleeper sleeper, final ActivityWatcher activityWatcher) {
 		this.config = config;
 		this.persister = persister;
 		this.pageBuilder = pageBuilder;
 		this.tweeter = tweeter;
 		this.sitePoller = sitePoller;
 		this.sleeper = sleeper;
+		this.activityWatcher = activityWatcher;
 
 		this.oldIntHandler = Signals.withHandler(new Runnable() {
 			@Override
