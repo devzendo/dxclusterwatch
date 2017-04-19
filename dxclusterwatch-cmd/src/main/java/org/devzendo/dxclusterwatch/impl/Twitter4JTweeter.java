@@ -35,6 +35,18 @@ public class Twitter4JTweeter implements Tweeter {
 		}
 	}
 
+	@Override
+	public void tweetText(final String activity) {
+		LOGGER.debug("Tweeting '{}'", activity);
+		try {
+			final Twitter twitter = configuredTwitterFactory.createTwitter();
+			twitter.updateStatus(activity);
+		} catch (final TwitterException e) {
+			LOGGER.warn("Could not tweet '{}': {}", activity, e);
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static final String convertToTweet(final ClusterRecord record) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(record.getDxcall());
@@ -73,5 +85,4 @@ public class Twitter4JTweeter implements Tweeter {
 		cal.setTime(ts);
 		return String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
 	}
-
 }

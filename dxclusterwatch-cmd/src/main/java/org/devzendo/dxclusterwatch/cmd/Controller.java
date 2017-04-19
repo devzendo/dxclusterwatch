@@ -66,6 +66,7 @@ public class Controller {
 		// transient counts of tweets and rebuilds...
 		int tweetNumber = 1;
 		int pageRebuildNumber = 1;
+		String lastTweet = "";
 		
 		LOGGER.info("Starting....");
 		while (running.get()) {
@@ -113,15 +114,23 @@ public class Controller {
 			if (nowSeconds() >= nextTweet) {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
+					activityWatcher.seen(nextRecordToTweet);
+					persister.markTweeted(nextRecordToTweet);
+					final String activity = activityWatcher.latestTweetableActivity();
 					try {
-						if (config.isTweetingEnabled()) {
-							LOGGER.info("#" + tweetNumber + " - tweeting " + nextRecordToTweet.toDbString());
-							tweeter.tweet(nextRecordToTweet);
-							tweetBackoffCount = 0;
-							tweetNumber++;
-							persister.markTweeted(nextRecordToTweet);
+						if ("".equals(activity) || activity.equals(lastTweet)) {
+							LOGGER.debug("Nothing new to tweet");
 						} else {
-							LOGGER.info("Tweeting is disabled");
+							LOGGER.info("Activity: {}", activity);
+							lastTweet = activity;
+							if (config.isTweetingEnabled()) {
+								LOGGER.info("#{} - tweeting {}", tweetNumber, activity);
+								tweeter.tweetText(activity);
+								tweetBackoffCount = 0;
+								tweetNumber++;
+							} else {
+								LOGGER.info("Tweeting is disabled");
+							}
 						}
 						nextTweet = nowSeconds() + tweetSeconds;
 					} catch (final RuntimeException re) {
@@ -132,7 +141,7 @@ public class Controller {
 						}
 						final long secs = 60 * tweetBackoffCount;
 						nextTweet = nowSeconds() + secs;
-						LOGGER.warn("Could not tweet " + nextRecordToTweet + ": " + re.getMessage() + ": next attempt in " + secs + " seconds");
+						LOGGER.warn("Could not tweet '" + activity + "': " + re.getMessage() + ": next attempt in " + secs + " seconds");
 					}
 				}
 			}

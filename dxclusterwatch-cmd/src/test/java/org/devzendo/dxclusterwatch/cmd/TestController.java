@@ -261,6 +261,7 @@ public class TestController {
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(config.isTweetingEnabled()).thenReturn(true);
+		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6", "Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6", "Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6");
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord1, dbRecord1, dbRecord1, dbRecord1, null, null );
 		final List<Long> tweetIntervals = new ArrayList<>();
 		final CountDownLatch done = new CountDownLatch(1);
@@ -289,7 +290,7 @@ public class TestController {
 				}
 				return null;
 			}
-		}).when(tweeter).tweet(dbRecord1);
+		}).when(tweeter).tweetText(Mockito.anyString());
 
 		startController();
 
@@ -313,6 +314,7 @@ public class TestController {
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(config.isTweetingEnabled()).thenReturn(true);
+		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6", "Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6", "Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6");
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
 
 		final List<Long> tweetIntervals = new ArrayList<>();
@@ -334,7 +336,7 @@ public class TestController {
 				LOGGER.debug("Time since last tweet failure {}", tweetInterval);
 				throw new RuntimeException("could not tweet");
 			}
-		}).when(tweeter).tweet(dbRecord1);
+		}).when(tweeter).tweetText(Mockito.anyString());
 
 		startController();
 
@@ -368,6 +370,8 @@ public class TestController {
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
+		activityWatcher.seen(dbRecord1);
+		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6");
 		when(config.isTweetingEnabled()).thenReturn(true, true, false, false, true, true);
 
 		final List<Long> tweetTimeOffsets = new ArrayList<>();
@@ -388,7 +392,7 @@ public class TestController {
 				// but Mockito demands feeding
 				return null;			
 			}
-		}).when(tweeter).tweet(dbRecord1);
+		}).when(tweeter).tweetText(Mockito.anyString());
 
 		startController();
 
@@ -405,11 +409,12 @@ public class TestController {
 	}
 
 	@Test
-	public void recordsReceivedFromSitePollerAreTweeted() throws Exception {
+	public void recordsReceivedFromSitePollerAreTranslatedMarkedAndTweeted() throws Exception {
 		configExpectations();
 		when(sitePoller.poll()).thenReturn(records);
 		when(config.isTweetingEnabled()).thenReturn(true);
 		when(persister.persistRecords(records)).thenReturn(2);
+		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6");
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord2, null);
 
 		startController();
@@ -417,9 +422,28 @@ public class TestController {
 		sleeper.sleep(4000);
 		controller.stop();
 
-		verify(tweeter).tweet(dbRecord1);
+		verify(tweeter).tweetText("Tweet1");
 		verify(persister).markTweeted(dbRecord1);
-		verify(tweeter).tweet(dbRecord2);
+		verify(tweeter).tweetText("Tweet2");
+		verify(persister).markTweeted(dbRecord2);
+	}
+
+	@Test
+	public void dontTweetTheSameAsLastTime() throws Exception {
+		configExpectations();
+		when(sitePoller.poll()).thenReturn(records);
+		when(config.isTweetingEnabled()).thenReturn(true);
+		when(persister.persistRecords(records)).thenReturn(2);
+		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet", "Tweet");
+		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord2, null);
+
+		startController();
+
+		sleeper.sleep(4000);
+		controller.stop();
+
+		verify(tweeter).tweetText("Tweet");
+		verify(persister).markTweeted(dbRecord1);
 		verify(persister).markTweeted(dbRecord2);
 	}
 
