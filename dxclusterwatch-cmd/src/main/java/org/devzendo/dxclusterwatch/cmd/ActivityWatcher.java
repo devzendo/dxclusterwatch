@@ -8,6 +8,9 @@ public interface ActivityWatcher {
 	
 	// number of currently stored entries, for purging tests
 	int numEntries();
+	int numCallsigns();
+	
 	// called by seen(), latestTweetableActivity() but also from purging tests.
 	void purge();
+
 }

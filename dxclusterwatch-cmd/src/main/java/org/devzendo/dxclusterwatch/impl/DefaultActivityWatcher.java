@@ -86,6 +86,11 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 		return count;
 	}
 	
+	@Override
+	public int numCallsigns() {
+		return map.size();
+	}
+	
 	// callsign -> [ time, frequency, tweeted ]  // ordered on date/time, frequency is integerised
 	// new callsign/frequency, add to outgoing. same? ignore.
 	// already recorded but at a new time? ignore.
@@ -164,17 +169,22 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	public void purge() {
 		final long now = sleeper.currentTimeMillis();
 		final Set<Entry<Callsign, List<Stuff>>> entries = map.entrySet();
-		for (final Entry<Callsign, List<Stuff>> entry : entries) {
-			final Iterator<Stuff> it = entry.getValue().iterator();
-			while (it.hasNext()) {
-				final Stuff stuff = it.next();
+		final Iterator<Entry<Callsign, List<Stuff>>> entryIterator = entries.iterator();
+		while (entryIterator.hasNext()) {
+			final Entry<Callsign, List<Stuff>> entry = entryIterator.next();
+			final Iterator<Stuff> stuffIterator = entry.getValue().iterator();
+			while (stuffIterator.hasNext()) {
+				final Stuff stuff = stuffIterator.next();
 				if (stuff.tweeted == true && stuff.expiryTime < now) {
 					LOGGER.info("Purging {}", stuff);
-					it.remove();
+					stuffIterator.remove();
 				}
 			}
+			if (entry.getValue().isEmpty()) {
+				LOGGER.info("Purging callsign {}", entry.getKey());
+				entryIterator.remove();
+			}
 		}
-		// TODO purge empty callsign entries
 	}
 
 	private List<Callsign> sortMapByEntryTime() {

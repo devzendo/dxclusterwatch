@@ -222,17 +222,21 @@ public class TestDefaultActivityWatcher {
 		sleeper.sleep(29 * MINUTES);		
 		watcher.latestTweetableActivity(); // ignore result
 		assertThat(watcher.numEntries(), equalTo(3)); // still there
-
-		watcher.seen(gen("GB4IMD", minutesFromEpoch(40), "4580.2"));
+		assertThat(watcher.numCallsigns(), equalTo(1));
+		
+		watcher.seen(gen("XYZIMD", minutesFromEpoch(40), "4580.2"));
 		assertThat(watcher.numEntries(), equalTo(4));
-
+		assertThat(watcher.numCallsigns(), equalTo(2));
+		
 		sleeper.sleep(8 * MINUTES);
 		watcher.latestTweetableActivity(); // ignore result
 		assertThat(watcher.numEntries(), equalTo(1)); // original 3 gone
+		assertThat(watcher.numCallsigns(), equalTo(1));
 
 		sleeper.sleep(23 * MINUTES);
 		watcher.latestTweetableActivity(); // ignore result
 		assertThat(watcher.numEntries(), equalTo(0)); // one-off gone
+		assertThat(watcher.numCallsigns(), equalTo(0));
 	}
 
 	@Test
@@ -262,5 +266,7 @@ public class TestDefaultActivityWatcher {
 		sleeper.sleep(23 * MINUTES);
 		watcher.purge();
 		assertThat(watcher.numEntries(), equalTo(4));
+		
+		assertThat(watcher.numCallsigns(), equalTo(1));
 	}
 }
