@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.dxclusterwatch.cmd.ActivityWatcher;
 import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
 import org.devzendo.dxclusterwatch.impl.DefaultActivityWatcher.Stuff;
@@ -14,8 +15,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestDefaultActivityWatcher {
-
-	private final ActivityWatcher watcher = new DefaultActivityWatcher();
+	private static final int SECONDS = 1000; // in ms
+	private static final int MINUTES = 60 * SECONDS; // in ms
+	private static final long IRRELEVANT_EXPIRY_TIME = 80 * MINUTES;
+	
+	private final Sleeper sleeper = new Sleeper(100);
+	private final ActivityWatcher watcher = new DefaultActivityWatcher(sleeper);
 	
 	private int count;
 	@Before
@@ -31,6 +36,7 @@ public class TestDefaultActivityWatcher {
 	public void firstEntryIsReturned() {
 		watcher.seen(gen("GB4IMD", minutesFromEpoch(20), "14060.3"));
 		assertThat(watcher.latestTweetableActivity(), equalTo("GB4IMD (14060 00:20)"));
+		assertThat(watcher.numEntries(), equalTo(1));
 	}
 
 	@Test
@@ -39,6 +45,7 @@ public class TestDefaultActivityWatcher {
 		watcher.latestTweetableActivity(); // ignore, this will mark dbRecord1 as tweeted.
 
 		assertThat(watcher.latestTweetableActivity(), equalTo(""));
+		assertThat(watcher.numEntries(), equalTo(1));
 	}
 
 	@Test
@@ -77,6 +84,8 @@ public class TestDefaultActivityWatcher {
 		watcher.seen(gen("GB4IMD", minutesFromEpoch(57), "2000.2"));
 		watcher.seen(gen("GB4IMD", minutesFromEpoch(58), "5000.2"));
 
+		assertThat(watcher.numEntries(), equalTo(13));
+
 		//                                                     0        1         2         3         4         5         6         7         8         9         0         1         2         3         4
 		//                                                     12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 		assertThat(watcher.latestTweetableActivity(), equalTo("GB4IMD (7040 00:13, 14060 00:20, 3580 00:24, 4580 00:40, 4680 00:42, 4780 00:44, 4880 00:46, 4980 00:48, 5000 00:50, 5010 00:52, 100 00:53)"));
@@ -111,7 +120,7 @@ public class TestDefaultActivityWatcher {
 
 	@Test
 	public void joinWhileStillFitsDoesNotFit() {
-		final Stuff s1 = new Stuff(minutesFromEpoch(1), 0);
+		final Stuff s1 = new Stuff(minutesFromEpoch(1), 0, IRRELEVANT_EXPIRY_TIME);
 		
 		assertThat(DefaultActivityWatcher.joinWhileStillFitsAndMarkTweeted(6, asList(s1)), equalTo(""));
 		assertThat(s1.tweeted, equalTo(false));
@@ -119,8 +128,8 @@ public class TestDefaultActivityWatcher {
 
 	@Test
 	public void joinWhileStillFitsFits() {
-		final Stuff s1 = new Stuff(minutesFromEpoch(1), 1);
-		final Stuff s2 = new Stuff(minutesFromEpoch(2), 2);
+		final Stuff s1 = new Stuff(minutesFromEpoch(1), 1, IRRELEVANT_EXPIRY_TIME);
+		final Stuff s2 = new Stuff(minutesFromEpoch(2), 2, IRRELEVANT_EXPIRY_TIME);
 		
 		final List<Stuff> list = asList(s1, s2);
 		
@@ -135,8 +144,8 @@ public class TestDefaultActivityWatcher {
 
 	@Test
 	public void joinWhileStillFitsCantQuiteJoin() {
-		final Stuff s1 = new Stuff(minutesFromEpoch(1), 1);
-		final Stuff s2 = new Stuff(minutesFromEpoch(2), 2);
+		final Stuff s1 = new Stuff(minutesFromEpoch(1), 1, IRRELEVANT_EXPIRY_TIME);
+		final Stuff s2 = new Stuff(minutesFromEpoch(2), 2, IRRELEVANT_EXPIRY_TIME);
 		
 		final List<Stuff> list = asList(s1, s2);
 		
@@ -152,8 +161,8 @@ public class TestDefaultActivityWatcher {
 
 	@Test
 	public void joinWhileStillFitsJoins() {
-		final Stuff s1 = new Stuff(minutesFromEpoch(1), 1);
-		final Stuff s2 = new Stuff(minutesFromEpoch(2), 2);
+		final Stuff s1 = new Stuff(minutesFromEpoch(1), 1, IRRELEVANT_EXPIRY_TIME);
+		final Stuff s2 = new Stuff(minutesFromEpoch(2), 2, IRRELEVANT_EXPIRY_TIME);
 		
 		final List<Stuff> list = asList(s1, s2);
 		
@@ -169,6 +178,7 @@ public class TestDefaultActivityWatcher {
 	@Test
 	public void emptyWatcher() {
 		assertThat(watcher.latestTweetableActivity(), equalTo(""));
+		assertThat(watcher.numEntries(), equalTo(0));
 	}
 	
 	@Test
@@ -180,7 +190,7 @@ public class TestDefaultActivityWatcher {
 
 	private String stuffStr(final int minutesFromEpoch) {
 		final Timestamp t = minutesFromEpoch(minutesFromEpoch);
-		final DefaultActivityWatcher.Stuff stuff = new DefaultActivityWatcher.Stuff(t, 0);
+		final DefaultActivityWatcher.Stuff stuff = new DefaultActivityWatcher.Stuff(t, 0, IRRELEVANT_EXPIRY_TIME);
 		return stuff.toString();
 	}
 	
@@ -196,5 +206,61 @@ public class TestDefaultActivityWatcher {
 	private Timestamp minutesFromEpoch(final long minutesFromEpoch) {
 		final Timestamp when = new Timestamp(minutesFromEpoch * 60000);
 		return when;
+	}
+	
+	@Test
+	public void purgeOfTweetedEntriesHappensAfter30Mins() {
+		// purge time is 30 mins after calling seen (based on the Sleeper's time),
+		// NOT 30 mins after the timestamp in the ClusterRecord.
+		// purging is done on each new seen(..) or latestTweetableActivity()
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(20), "14060.3"));
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(13), "7040.7"));
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(24), "3580.2"));
+
+		assertThat(watcher.numEntries(), equalTo(3));
+
+		sleeper.sleep(29 * MINUTES);		
+		watcher.latestTweetableActivity(); // ignore result
+		assertThat(watcher.numEntries(), equalTo(3)); // still there
+
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(40), "4580.2"));
+		assertThat(watcher.numEntries(), equalTo(4));
+
+		sleeper.sleep(8 * MINUTES);
+		watcher.latestTweetableActivity(); // ignore result
+		assertThat(watcher.numEntries(), equalTo(1)); // original 3 gone
+
+		sleeper.sleep(23 * MINUTES);
+		watcher.latestTweetableActivity(); // ignore result
+		assertThat(watcher.numEntries(), equalTo(0)); // one-off gone
+	}
+
+	@Test
+	public void purgeOfUntweetedEntriesDoesNotHappensAfter30Mins() {
+		// purge time is 30 mins after calling seen (based on the Sleeper's time),
+		// NOT 30 mins after the timestamp in the ClusterRecord.
+		// purging is called explicitly here. Note same timing structure as above.
+		// but latestTweetableActivity is not called in this test, so entries do not
+		// get purged.
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(20), "14060.3"));
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(13), "7040.7"));
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(24), "3580.2"));
+
+		assertThat(watcher.numEntries(), equalTo(3));
+
+		sleeper.sleep(29 * MINUTES);		
+		watcher.purge();
+		assertThat(watcher.numEntries(), equalTo(3)); // still there
+
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(40), "4580.2"));
+		assertThat(watcher.numEntries(), equalTo(4));
+
+		sleeper.sleep(8 * MINUTES);
+		watcher.purge();
+		assertThat(watcher.numEntries(), equalTo(4));
+
+		sleeper.sleep(23 * MINUTES);
+		watcher.purge();
+		assertThat(watcher.numEntries(), equalTo(4));
 	}
 }

@@ -35,7 +35,9 @@ public class Main {
 				
 				final DXClusterSitePoller sitePoller = new DXClusterSitePoller(prefsFactory.getPrefsDir(), config);
 
-				new Controller(config, persister, pageBuilder, tweeter, sitePoller, new Sleeper(), new DefaultActivityWatcher()).start();
+				final Sleeper sleeper = new Sleeper();
+				final ActivityWatcher activityWatcher = new DefaultActivityWatcher(sleeper);
+				new Controller(config, persister, pageBuilder, tweeter, sitePoller, sleeper, activityWatcher).start();
 			}
 			finally {
 				persister.close();

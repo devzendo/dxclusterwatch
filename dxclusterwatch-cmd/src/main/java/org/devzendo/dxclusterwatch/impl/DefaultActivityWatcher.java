@@ -7,16 +7,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
+import org.devzendo.commoncode.time.Sleeper;
 import org.devzendo.commoncode.types.RepresentationType;
 import org.devzendo.dxclusterwatch.cmd.ActivityWatcher;
 import org.devzendo.dxclusterwatch.cmd.ClusterRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultActivityWatcher implements ActivityWatcher {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultActivityWatcher.class);
+
+	private final Sleeper sleeper;
+
+	public DefaultActivityWatcher(final Sleeper sleeper) {
+		this.sleeper = sleeper;
+	}
 
 	public static int toInt(final String realStr) {
 		final String defRealStr = StringUtils.defaultIfBlank(realStr, "0");
@@ -29,6 +42,9 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	}
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+	private static final int SECONDS = 1000; // in ms
+	private static final int MINUTES = 60 * SECONDS; // in ms
+	private static final long EXPIRY_MS = 30 * MINUTES;
 	{{
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}}
@@ -37,9 +53,11 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 		public Timestamp when;
 		public int frequencyKHz;
 		public boolean tweeted;
-		public Stuff(final Timestamp when, final int freq) {
+		public long expiryTime;
+		public Stuff(final Timestamp when, final int freq, final long expiryTime) {
 			this.when = when;
 			this.frequencyKHz = freq;
+			this.expiryTime = expiryTime;
 			this.tweeted = false;
 		}
 		@Override
@@ -58,6 +76,16 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	
 	private final Map<Callsign, List<Stuff>> map = new HashMap<>();
 	
+	@Override
+	public int numEntries() {
+		int count = 0;
+		final Set<Entry<Callsign, List<Stuff>>> entries = map.entrySet();
+		for (final Entry<Callsign, List<Stuff>> entry : entries) {
+			count += entry.getValue().size();
+		}
+		return count;
+	}
+	
 	// callsign -> [ time, frequency, tweeted ]  // ordered on date/time, frequency is integerised
 	// new callsign/frequency, add to outgoing. same? ignore.
 	// already recorded but at a new time? ignore.
@@ -71,7 +99,7 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	// entries to be added to the tweet are sorted on earliest time
 	// and all eligible are added to the tweet if they will fit.
 	// if they fit, they're marked as tweeted so won't go out again
-	// Times are removed from the callsign's time list after 10 mins. Callsigns with empty time lists are removed.
+	// Times are removed from the callsign's time list after 30 mins. Callsigns with empty time lists are removed.
 	@Override
 	public void seen(final ClusterRecord record) {
 		final Callsign callsign = new Callsign(record.getDxcall());
@@ -83,10 +111,11 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 			records.add(toStuff(record));
 			map.put(callsign, records);
 		}
+		purge();
 	}
 
 	private Stuff toStuff(final ClusterRecord record) {
-		return new Stuff(record.getTimeAsTimestamp(), toInt(record.getFreq()));
+		return new Stuff(record.getTimeAsTimestamp(), toInt(record.getFreq()), sleeper.currentTimeMillis() + EXPIRY_MS);
 	}
 
 	@Override
@@ -104,6 +133,7 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	// tweet
 	// purge old times, and if callsign entry empty, purge that.
 	public String latestTweetableActivity() {
+		purge();
 		if (map.isEmpty()) {
 			return "";
 		}
@@ -128,6 +158,23 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 			}
 		}
 		return sb.toString().trim();
+	}
+
+	@Override
+	public void purge() {
+		final long now = sleeper.currentTimeMillis();
+		final Set<Entry<Callsign, List<Stuff>>> entries = map.entrySet();
+		for (final Entry<Callsign, List<Stuff>> entry : entries) {
+			final Iterator<Stuff> it = entry.getValue().iterator();
+			while (it.hasNext()) {
+				final Stuff stuff = it.next();
+				if (stuff.tweeted == true && stuff.expiryTime < now) {
+					LOGGER.info("Purging {}", stuff);
+					it.remove();
+				}
+			}
+		}
+		// TODO purge empty callsign entries
 	}
 
 	private List<Callsign> sortMapByEntryTime() {

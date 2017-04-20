@@ -114,6 +114,7 @@ public class Controller {
 			if (nowSeconds() >= nextTweet) {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
+					LOGGER.info("Incoming record to watch: {}", nextRecordToTweet);
 					activityWatcher.seen(nextRecordToTweet);
 					persister.markTweeted(nextRecordToTweet);
 					final String activity = activityWatcher.latestTweetableActivity();

@@ -5,4 +5,9 @@ public interface ActivityWatcher {
 
 	// empty string if nothing to say, repeat last string if nothing has changed. 
 	String latestTweetableActivity();
+	
+	// number of currently stored entries, for purging tests
+	int numEntries();
+	// called by seen(), latestTweetableActivity() but also from purging tests.
+	void purge();
 }
