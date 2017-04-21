@@ -11,11 +11,16 @@ into the ~/dxclusterwatch/cacerts file. Use the default passphrase of changeit, 
 
 See http://stackoverflow.com/questions/6659360/how-to-solve-javax-net-ssl-sslhandshakeexception-error
 
-1. Save certificate from a browser to the dxcluster.co.uk file
+1. Save certificate from a browser to the dxcluster.co.uk file:
+firefox, on url https://www.dxcluster.co.uk/index.php?/api/all
+lock icon, more information. security tab. view certificate. details. export. save as dxcluster.co.uk
 
-2. cp /Library/Java/JavaVirtualMachines/jdk1.7.0_75.jdk/Contents/Home/jre/lib/security/cacerts ~/dxclusterwatch/cacerts
+2. cp /Library/Java/JavaVirtualMachines/jdk1.7.0_75.jdk/Contents/Home/jre/lib/security/cacerts ~/dxclusterwatch/cacerts (OSX)
+   cp /usr/lib/jvm/jdk-7-oracle-armhf/jre/lib/security/cacerts ~/dxclusterwatch/cacerts  (Raspberry Pi)
 3. keytool -import -file dxcluster.co.uk -alias dxcluster -keystore ~/dxclusterwatch/cacerts
-
+                            ^^^ this is the file you saved
+   (default password is changeit)
+                               
 This path will be the ~/dxclusterwatch directory.
 
 The configuration is in the ~/dxclusterwatch/dxclusterwatch.properties file, and it has the following properties:
