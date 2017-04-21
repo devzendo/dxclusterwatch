@@ -1,7 +1,11 @@
 package org.devzendo.dxclusterwatch.cmd;
 
 public interface ActivityWatcher {
-	void seen(ClusterRecord record);
+	public interface MarkPublished {
+		void markPublished(ClusterRecord record);
+	}
+	
+	void seen(ClusterRecord record, MarkPublished markPublished);
 
 	// empty string if nothing to say, repeat last string if nothing has changed. 
 	String latestTweetableActivity();

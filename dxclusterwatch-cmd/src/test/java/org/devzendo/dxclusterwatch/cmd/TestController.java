@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.devzendo.commoncode.time.Sleeper;
+import org.devzendo.dxclusterwatch.cmd.ActivityWatcher.MarkPublished;
 import org.devzendo.dxclusterwatch.test.LoggingUnittest;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -370,7 +371,11 @@ public class TestController {
 		// record to tweet.
 		when(config.isFeedReadingEnabled()).thenReturn(false);
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1);
-		activityWatcher.seen(dbRecord1);
+		activityWatcher.seen(dbRecord1, new MarkPublished() {
+			@Override
+			public void markPublished(final ClusterRecord record) {
+				// do nothing
+			}});
 		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6");
 		when(config.isTweetingEnabled()).thenReturn(true, true, false, false, true, true);
 
@@ -416,7 +421,7 @@ public class TestController {
 		when(persister.persistRecords(records)).thenReturn(2);
 		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet1", "Tweet2", "Tweet3", "Tweet4", "Tweet5", "Tweet6");
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord2, null);
-
+		setupActivityWatcherToMarkPublishedWhenSeen();
 		startController();
 
 		sleeper.sleep(4000);
@@ -436,7 +441,7 @@ public class TestController {
 		when(persister.persistRecords(records)).thenReturn(2);
 		when(activityWatcher.latestTweetableActivity()).thenReturn("Tweet", "Tweet");
 		when(persister.getNextRecordToTweet()).thenReturn(dbRecord1, dbRecord2, null);
-
+		setupActivityWatcherToMarkPublishedWhenSeen();
 		startController();
 
 		sleeper.sleep(4000);
@@ -445,6 +450,22 @@ public class TestController {
 		verify(tweeter).tweetText("Tweet");
 		verify(persister).markTweeted(dbRecord1);
 		verify(persister).markTweeted(dbRecord2);
+	}
+
+	private void setupActivityWatcherToMarkPublishedWhenSeen() {
+		// do the callback
+		Mockito.doAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) throws Throwable {
+				final Object[] args = invocation.getArguments();
+				final ClusterRecord rec = (ClusterRecord) args[0];
+				final MarkPublished pub = (MarkPublished) args[1];
+				pub.markPublished(rec);
+				// no exception, void return
+				// but Mockito demands feeding
+				return null;			
+			}
+		}).when(activityWatcher).seen(Mockito.any(ClusterRecord.class), Mockito.any(MarkPublished.class));
 	}
 
 	private void configExpectations() {

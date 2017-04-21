@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.devzendo.commoncode.time.Sleeper;
+import org.devzendo.dxclusterwatch.cmd.ActivityWatcher.MarkPublished;
 import org.devzendo.dxclusterwatch.util.Signals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,9 +115,14 @@ public class Controller {
 			if (nowSeconds() >= nextTweet) {
 				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
 				if (nextRecordToTweet != null) {
+					
 					LOGGER.info("Incoming record to watch: {}", nextRecordToTweet);
-					activityWatcher.seen(nextRecordToTweet);
-					persister.markTweeted(nextRecordToTweet);
+					activityWatcher.seen(nextRecordToTweet, new MarkPublished() {
+						@Override
+						public void markPublished(final ClusterRecord record) {
+							persister.markTweeted(record);							
+						}});
+					
 					final String activity = activityWatcher.latestTweetableActivity();
 					try {
 						if ("".equals(activity) || activity.equals(lastTweet)) {

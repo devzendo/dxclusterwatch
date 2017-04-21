@@ -54,10 +54,14 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 		public int frequencyKHz;
 		public boolean tweeted;
 		public long expiryTime;
-		public Stuff(final Timestamp when, final int freq, final long expiryTime) {
+		public MarkPublished markPublished;
+		public final ClusterRecord record;
+		public Stuff(final ClusterRecord record, final Timestamp when, final int freq, final long expiryTime, final MarkPublished markPublished) {
+			this.record = record;
 			this.when = when;
 			this.frequencyKHz = freq;
 			this.expiryTime = expiryTime;
+			this.markPublished = markPublished;
 			this.tweeted = false;
 		}
 		@Override
@@ -65,6 +69,9 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 			final Date date = new Date(when.getTime());
 			final String formattedTime = sdf.format(date);
 			return "" + frequencyKHz + " " + (formattedTime);
+		}
+		public void markPublished() {
+			markPublished.markPublished(record);
 		}
 	}
 	
@@ -106,21 +113,21 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	// if they fit, they're marked as tweeted so won't go out again
 	// Times are removed from the callsign's time list after 30 mins. Callsigns with empty time lists are removed.
 	@Override
-	public void seen(final ClusterRecord record) {
+	public void seen(final ClusterRecord record, final MarkPublished markPublished) {
 		final Callsign callsign = new Callsign(record.getDxcall());
 		if (map.containsKey(callsign)) {
 			final List<Stuff> records = map.get(callsign);
-			records.add(toStuff(record));
+			records.add(toStuff(record, markPublished));
 		} else {
 			final List<Stuff> records = new ArrayList<>();
-			records.add(toStuff(record));
+			records.add(toStuff(record, markPublished));
 			map.put(callsign, records);
 		}
 		purge();
 	}
 
-	private Stuff toStuff(final ClusterRecord record) {
-		return new Stuff(record.getTimeAsTimestamp(), toInt(record.getFreq()), sleeper.currentTimeMillis() + EXPIRY_MS);
+	private Stuff toStuff(final ClusterRecord record, final MarkPublished markPublished) {
+		return new Stuff(record, record.getTimeAsTimestamp(), toInt(record.getFreq()), sleeper.currentTimeMillis() + EXPIRY_MS, markPublished);
 	}
 
 	@Override
@@ -238,6 +245,7 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 				for (final Stuff mark: subList) {
 //					System.out.println("marking " + mark + " as tweeted");
 					mark.tweeted = true;
+					mark.markPublished();
 				}
 				return joined;
 			} else {

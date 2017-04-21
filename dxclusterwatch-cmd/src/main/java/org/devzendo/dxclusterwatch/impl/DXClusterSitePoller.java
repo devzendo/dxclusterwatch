@@ -100,6 +100,10 @@ public class DXClusterSitePoller implements SitePoller {
 		if (callsigns == null || callsigns.isEmpty()) {
 			return new ClusterRecord[0];
 		}
+		// Don't filter?
+		if (callsigns.size() == 1 && callsigns.contains("ALL")) {
+			return records;
+		}
 		
 		final ArrayList<ClusterRecord> outList = new ArrayList<>();
 		for (final ClusterRecord cr : records) {
