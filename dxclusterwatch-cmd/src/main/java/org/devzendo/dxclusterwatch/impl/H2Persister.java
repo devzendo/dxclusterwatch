@@ -155,6 +155,12 @@ public class H2Persister implements Persister {
 	}
 
 	@Override
+	public List<ClusterRecord> getUntweetedRecords() {
+		final String sql = "SELECT * FROM Spots WHERE tweeted = FALSE ORDER BY when";
+		return template.query(sql, rowMapper);
+	}
+
+	@Override
 	public Timestamp getEarliestTimeRecord() {
 		final String sql = "SELECT TOP 1 * FROM Spots ORDER BY when ASC";
 		try {

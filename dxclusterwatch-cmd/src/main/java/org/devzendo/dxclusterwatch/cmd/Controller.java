@@ -1,5 +1,6 @@
 package org.devzendo.dxclusterwatch.cmd;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -95,6 +96,21 @@ public class Controller {
 								}
 							}
 						}					
+						
+						// Now give all new tweets to the activity watcher
+						final List<ClusterRecord> untweetedRecords = persister.getUntweetedRecords();
+						if (untweetedRecords != null) {
+							for (final ClusterRecord clusterRecord : untweetedRecords) {
+								LOGGER.info("Incoming activity: {}", clusterRecord);
+								activityWatcher.seen(clusterRecord, new MarkPublished() {
+									@Override
+									public void markPublished(final ClusterRecord record) {
+										persister.markTweeted(record);							
+									}});								
+								
+							}
+						}							
+
 					} catch (final RuntimeException re) {
 						// Don't increase backoff without bound
 						if (backoffCount < 10) {
@@ -113,43 +129,34 @@ public class Controller {
 			
 			final int tweetSeconds = config.getTweetSeconds();
 			if (nowSeconds() >= nextTweet) {
-				final ClusterRecord nextRecordToTweet = persister.getNextRecordToTweet();
-				if (nextRecordToTweet != null) {
-					
-					LOGGER.info("Incoming record to watch: {}", nextRecordToTweet);
-					activityWatcher.seen(nextRecordToTweet, new MarkPublished() {
-						@Override
-						public void markPublished(final ClusterRecord record) {
-							persister.markTweeted(record);							
-						}});
-					
-					final String activity = activityWatcher.latestTweetableActivity();
-					try {
-						if ("".equals(activity) || activity.equals(lastTweet)) {
-							LOGGER.debug("Nothing new to tweet");
+				final String activity = activityWatcher.latestTweetableActivity();
+				try {
+					if ("".equals(activity)) {
+						LOGGER.debug("Nothing to tweet");
+					} else if (activity.equals(lastTweet)) {
+						LOGGER.debug("Nothing new to tweet (same as last one)");
+					} else {
+						LOGGER.info("Activity: {}", activity);
+						lastTweet = activity;
+						if (config.isTweetingEnabled()) {
+							LOGGER.info("#{} - tweeting {}", tweetNumber, activity);
+							tweeter.tweetText(activity);
+							tweetBackoffCount = 0;
+							tweetNumber++;
 						} else {
-							LOGGER.info("Activity: {}", activity);
-							lastTweet = activity;
-							if (config.isTweetingEnabled()) {
-								LOGGER.info("#{} - tweeting {}", tweetNumber, activity);
-								tweeter.tweetText(activity);
-								tweetBackoffCount = 0;
-								tweetNumber++;
-							} else {
-								LOGGER.info("Tweeting is disabled");
-							}
+							LOGGER.info("Tweeting is disabled");
 						}
-						nextTweet = nowSeconds() + tweetSeconds;
-					} catch (final RuntimeException re) {
-						// Don't increase backoff without bound
-						if (tweetBackoffCount < 10) {
-							tweetBackoffCount ++;
-							LOGGER.debug("Tweet backoff count now {}", tweetBackoffCount);
-						}
-						final long secs = 60 * tweetBackoffCount;
-						nextTweet = nowSeconds() + secs;
-						LOGGER.warn("Could not tweet '" + activity + "': " + re.getMessage() + ": next attempt in " + secs + " seconds");
 					}
+					nextTweet = nowSeconds() + tweetSeconds;
+				} catch (final RuntimeException re) {
+					// Don't increase backoff without bound
+					if (tweetBackoffCount < 10) {
+						tweetBackoffCount ++;
+						LOGGER.debug("Tweet backoff count now {}", tweetBackoffCount);
+					}
+					final long secs = 60 * tweetBackoffCount;
+					nextTweet = nowSeconds() + secs;
+					LOGGER.warn("Could not tweet '" + activity + "': " + re.getMessage() + ": next attempt in " + secs + " seconds");
 				}
 			}
 

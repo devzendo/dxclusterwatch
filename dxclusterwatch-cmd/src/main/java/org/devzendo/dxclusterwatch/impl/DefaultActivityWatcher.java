@@ -117,7 +117,18 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 		final Callsign callsign = new Callsign(record.getDxcall());
 		if (map.containsKey(callsign)) {
 			final List<Stuff> records = map.get(callsign);
-			records.add(toStuff(record, markPublished));
+			final Stuff newStuff = toStuff(record, markPublished);
+			// TODO no test for duplicate detail recording
+			boolean found = false;
+			for (final Stuff stuff : records) {
+				if (stuff.frequencyKHz == newStuff.frequencyKHz) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				records.add(newStuff);
+			}
 		} else {
 			final List<Stuff> records = new ArrayList<>();
 			records.add(toStuff(record, markPublished));
@@ -156,15 +167,17 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 //			System.out.println("list of stuff for callsign " + callsign + " contains " + stuffs.size() + " entries");
 			final List<Stuff> untweetedStuff = filterUntweetedAndSortOnTime(stuffs);
 			if (!untweetedStuff.isEmpty()) {
-				final StringBuilder text = new StringBuilder();
-				text.append(callsign);
-				text.append(" (");
 //				System.out.println("sb is [" + sb.toString() + "] text is [" + text.toString() + "]");
-				final int remaining = 140 - (sb.toString().length() + text.toString().length() + 2 /* 2 for the )\n */);
+				final int remaining = 140 - (sb.toString().length() + callsign.toString().length() + 4 /* 4 for the _()\n */);
 				final String joined = joinWhileStillFitsAndMarkTweeted(remaining, untweetedStuff);
-				text.append(joined);
-				text.append(")\n");
-				sb.append(text.toString());
+				if (!joined.isEmpty()) {
+					final StringBuilder text = new StringBuilder();
+					text.append(callsign);
+					text.append(" (");
+					text.append(joined);
+					text.append(")\n");				
+					sb.append(text.toString());
+				}
 			} else {
 //				System.out.println("callsign " + callsign + " list of untweeted stuff is empty");
 			}
@@ -243,7 +256,7 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 				// all these entries could fit. mark them
 //				System.out.println("it fits!");
 				for (final Stuff mark: subList) {
-//					System.out.println("marking " + mark + " as tweeted");
+					LOGGER.debug("marking " + mark + " as tweeted");
 					mark.tweeted = true;
 					mark.markPublished();
 				}

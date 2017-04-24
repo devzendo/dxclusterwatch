@@ -9,6 +9,7 @@ public interface Persister {
 	List<ClusterRecord> getRecords();
 
 	ClusterRecord getNextRecordToTweet();
+	List<ClusterRecord> getUntweetedRecords();
 
 	void markTweeted(ClusterRecord tweetedRecord);
 
@@ -17,4 +18,5 @@ public interface Persister {
 	List<ClusterRecord> getRecordsBetween(Timestamp start, Timestamp end);
 	
 	Timestamp getEarliestTimeRecord();
+
 }
