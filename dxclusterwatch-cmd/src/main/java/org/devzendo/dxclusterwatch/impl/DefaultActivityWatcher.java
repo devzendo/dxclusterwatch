@@ -100,7 +100,7 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	
 	// callsign -> [ time, frequency, tweeted ]  // ordered on date/time, frequency is integerised
 	// new callsign/frequency, add to outgoing. same? ignore.
-	// already recorded but at a new time? ignore.
+	// already recorded at this frequency but at a new time? ignore.
 	// eg KM1CC (18075 19:56)
 	// if multiple frequencies have been heard since last tweet
 	// KM1CC (18075 19:56, 7240 20:01) <-- ordered on time (date taken into account too, but not displayed)
@@ -113,28 +113,31 @@ public class DefaultActivityWatcher implements ActivityWatcher {
 	// if they fit, they're marked as tweeted so won't go out again
 	// Times are removed from the callsign's time list after 30 mins. Callsigns with empty time lists are removed.
 	@Override
-	public void seen(final ClusterRecord record, final MarkPublished markPublished) {
+	public boolean seen(final ClusterRecord record, final MarkPublished markPublished) {
 		final Callsign callsign = new Callsign(record.getDxcall());
+		boolean foundDuplicate = false;
 		if (map.containsKey(callsign)) {
 			final List<Stuff> records = map.get(callsign);
 			final Stuff newStuff = toStuff(record, markPublished);
-			// TODO no test for duplicate detail recording
-			boolean found = false;
 			for (final Stuff stuff : records) {
 				if (stuff.frequencyKHz == newStuff.frequencyKHz) {
-					found = true;
+					// mark this as immediately published, don't want to see it again...
+					markPublished.markPublished(record);
+					foundDuplicate = true;
 					break;
 				}
 			}
-			if (!found) {
+			if (!foundDuplicate) {
 				records.add(newStuff);
 			}
 		} else {
 			final List<Stuff> records = new ArrayList<>();
 			records.add(toStuff(record, markPublished));
+			// it'll be marked published when it makes it into a tweet
 			map.put(callsign, records);
 		}
 		purge();
+		return !foundDuplicate;
 	}
 
 	private Stuff toStuff(final ClusterRecord record, final MarkPublished markPublished) {

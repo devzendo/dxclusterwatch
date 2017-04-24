@@ -1,3 +1,9 @@
+Where I'd got to, what needs doing next time:
+When I set the tweet interval low (5s) to clear out the backlog of untweeted records, this did
+not seem to have any effect - why?
+
+
+
 Very rough notes.
 
 Configuration storage

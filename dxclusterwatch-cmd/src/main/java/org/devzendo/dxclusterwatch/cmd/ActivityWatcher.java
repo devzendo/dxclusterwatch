@@ -5,7 +5,10 @@ public interface ActivityWatcher {
 		void markPublished(ClusterRecord record);
 	}
 	
-	void seen(ClusterRecord record, MarkPublished markPublished);
+	// record a cluster record. return true if it's a new one (and will be formed into a tweet and
+	// marked as published when it fits), false if already seen (and will be marked as published
+	// immediately)
+	boolean seen(ClusterRecord record, MarkPublished markPublished);
 
 	// empty string if nothing to say, repeat last string if nothing has changed. 
 	String latestTweetableActivity();

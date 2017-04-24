@@ -42,7 +42,7 @@ public class TestDefaultActivityWatcher {
 	private ClusterRecord gen(final String callsign, final Timestamp when, final String freq) {
 		return ClusterRecord.dbRecord(count++, callsign, "M0CUV", when, freq, "Hi Matt");
 	}
-	
+
 	@Test
 	public void firstEntryIsReturned() {
 		watcher.seen(gen("GB4IMD", minutesFromEpoch(20), "14060.3"), doNothingToMarkTweeted);
@@ -69,13 +69,74 @@ public class TestDefaultActivityWatcher {
 		assertThat(watcher.latestTweetableActivity(), equalTo("W51XYZ (3754 01:20)"));
 	}
 
+	private static class ClusterRecordWithDetectablePublishing implements MarkPublished {
+		private final ClusterRecord rec;
+		private boolean published = false;
+		
+		public boolean isPublished() {
+			return published;
+		}
+
+		public ClusterRecordWithDetectablePublishing(final ClusterRecord rec) {
+			this.rec = rec;
+		}
+		
+		@Override
+		public void markPublished(final ClusterRecord record) {
+			assert (record == rec);
+			published = true;
+		}
+	}
+	
+	private ClusterRecordWithDetectablePublishing genDP(final String callsign, final Timestamp when, final String freq) {
+		final ClusterRecord dbRecord = gen(callsign, when, freq);
+		return new ClusterRecordWithDetectablePublishing(dbRecord);
+	}
+
 	@Test
 	public void heardOnMultipleFrequenciesAndTimes() {
-		watcher.seen(gen("GB4IMD", minutesFromEpoch(20), "14060.3"), doNothingToMarkTweeted);
-		watcher.seen(gen("GB4IMD", minutesFromEpoch(13), "7040.7"), doNothingToMarkTweeted);
-		watcher.seen(gen("GB4IMD", minutesFromEpoch(24), "3580.2"), doNothingToMarkTweeted);
+		final ClusterRecordWithDetectablePublishing dp1 = genDP("GB4IMD", minutesFromEpoch(20), "14060.3");
+		assertThat(dp1.isPublished(), equalTo(false));
+		assertThat(watcher.seen(dp1.rec, dp1), equalTo(true));
+		assertThat(dp1.isPublished(), equalTo(false));
+		
+		final ClusterRecordWithDetectablePublishing dp2 = genDP("GB4IMD", minutesFromEpoch(13), "7040.7");
+		assertThat(dp2.isPublished(), equalTo(false));
+		assertThat(watcher.seen(dp2.rec, dp2), equalTo(true));
+		assertThat(dp2.isPublished(), equalTo(false));
+
+		final ClusterRecordWithDetectablePublishing dp3 = genDP("GB4IMD", minutesFromEpoch(24), "3580.2");
+		assertThat(dp3.isPublished(), equalTo(false));
+		assertThat(watcher.seen(dp3.rec, dp3), equalTo(true));
+		assertThat(dp3.isPublished(), equalTo(false));
 
 		assertThat(watcher.latestTweetableActivity(), equalTo("GB4IMD (7040 00:13, 14060 00:20, 3580 00:24)"));
+		assertThat(dp1.isPublished(), equalTo(true));
+		assertThat(dp2.isPublished(), equalTo(true));
+		assertThat(dp3.isPublished(), equalTo(true));
+	}
+	
+	@Test
+	public void heardOnMultipleTimesDoesNotReportAllButOnlyTheEarliestTime() {
+		final ClusterRecordWithDetectablePublishing dp1 = genDP("GB4IMD", minutesFromEpoch(20), "14060.3");
+		assertThat(dp1.isPublished(), equalTo(false));
+		assertThat(watcher.seen(dp1.rec, dp1), equalTo(true));
+		assertThat(dp1.isPublished(), equalTo(false));
+
+		final ClusterRecordWithDetectablePublishing dp2 = genDP("GB4IMD", minutesFromEpoch(13), "14060.3");
+		assertThat(dp2.isPublished(), equalTo(false));
+		assertThat(watcher.seen(dp2.rec, dp2), equalTo(false));
+		assertThat(dp2.isPublished(), equalTo(true)); // immediate discard duplicate
+		
+		final ClusterRecordWithDetectablePublishing dp3 = genDP("GB4IMD", minutesFromEpoch(24), "14060.3");
+		assertThat(dp3.isPublished(), equalTo(false));
+		assertThat(watcher.seen(dp3.rec, dp3), equalTo(false));
+		assertThat(dp3.isPublished(), equalTo(true)); // immediate discard duplicate
+
+		assertThat(watcher.latestTweetableActivity(), equalTo("GB4IMD (14060 00:20)"));
+		assertThat(dp1.isPublished(), equalTo(true));
+		assertThat(dp2.isPublished(), equalTo(true));
+		assertThat(dp3.isPublished(), equalTo(true));
 	}
 
 	@Test
@@ -96,7 +157,7 @@ public class TestDefaultActivityWatcher {
 		// --
 		final TweetMarkPublishCounter secondTweetBatchCounter = new TweetMarkPublishCounter();
 		watcher.seen(gen("GB4IMD", minutesFromEpoch(57), "2000.2"), secondTweetBatchCounter);
-		watcher.seen(gen("GB4IMD", minutesFromEpoch(58), "5000.2"), secondTweetBatchCounter);
+		watcher.seen(gen("GB4IMD", minutesFromEpoch(58), "6000.2"), secondTweetBatchCounter);
 		assertThat(firstTweetBatchCounter.count(), equalTo(0));
 		assertThat(secondTweetBatchCounter.count(), equalTo(0));
 		
@@ -108,14 +169,14 @@ public class TestDefaultActivityWatcher {
 		assertThat(firstTweetBatchCounter.count(), equalTo(11)); // what set?
 		assertThat(secondTweetBatchCounter.count(), equalTo(0));
 
-		assertThat(watcher.latestTweetableActivity(), equalTo("GB4IMD (2000 00:57, 5000 00:58)"));
+		assertThat(watcher.latestTweetableActivity(), equalTo("GB4IMD (2000 00:57, 6000 00:58)"));
 
 		assertThat(watcher.latestTweetableActivity(), equalTo(""));
 
 		assertThat(firstTweetBatchCounter.count(), equalTo(11));
 		assertThat(firstTweetBatchCounter.frequencies, containsInAnyOrder(7040, 14060, 3580, 4580, 4680, 4780, 4880, 4980, 5000, 5010, 100));
 		assertThat(secondTweetBatchCounter.count(), equalTo(2));
-		assertThat(secondTweetBatchCounter.frequencies, containsInAnyOrder(2000, 5000));
+		assertThat(secondTweetBatchCounter.frequencies, containsInAnyOrder(2000, 6000));
 	}
 	
 	private class TweetMarkPublishCounter implements MarkPublished {
