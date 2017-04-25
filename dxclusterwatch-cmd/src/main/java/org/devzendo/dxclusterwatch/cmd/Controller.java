@@ -72,8 +72,11 @@ public class Controller {
 		
 		LOGGER.info("Starting....");
 		while (running.get()) {
+			final int tweetSeconds = config.getTweetSeconds();
 			final int pollSeconds = config.getPollMinutes() * 60;
-			if (nowSeconds() >= nextPollTime) {
+			final long nowSeconds = nowSeconds();
+			LOGGER.info("Now " + nowSeconds + " poll " + pollSeconds + " next poll " + nextPollTime + " tweet " + tweetSeconds + " next tweet " + nextTweet);
+			if (nowSeconds >= nextPollTime) {
 				if (config.isFeedReadingEnabled()) {
 					try {
 						LOGGER.info("Polling DXCluster...");
@@ -95,22 +98,7 @@ public class Controller {
 									LOGGER.info("Publishing of updated pages is disabled");
 								}
 							}
-						}					
-						
-						// Now give all new tweets to the activity watcher
-						final List<ClusterRecord> untweetedRecords = persister.getUntweetedRecords();
-						if (untweetedRecords != null) {
-							for (final ClusterRecord clusterRecord : untweetedRecords) {
-								LOGGER.info("Incoming activity: {}", clusterRecord);
-								activityWatcher.seen(clusterRecord, new MarkPublished() {
-									@Override
-									public void markPublished(final ClusterRecord record) {
-										persister.markTweeted(record);							
-									}});								
-								
-							}
-						}							
-
+						}											
 					} catch (final RuntimeException re) {
 						// Don't increase backoff without bound
 						if (backoffCount < 10) {
@@ -125,16 +113,34 @@ public class Controller {
 					LOGGER.info("Polling of DXCluster is disabled");
 					nextPollTime = nowSeconds() + pollSeconds;
 				}
+
+				try {
+					LOGGER.info("Giving all untweeted tweets to the activity watcher");
+					// Now give all new tweets to the activity watcher
+					final List<ClusterRecord> untweetedRecords = persister.getUntweetedRecords();
+					if (untweetedRecords != null) {
+						for (final ClusterRecord clusterRecord : untweetedRecords) {
+							LOGGER.info("Incoming activity: {}", clusterRecord);
+							activityWatcher.seen(clusterRecord, new MarkPublished() {
+								@Override
+								public void markPublished(final ClusterRecord record) {
+									persister.markTweeted(record);							
+								}});								
+							
+						}
+					}							
+				} catch (final RuntimeException re) {
+					LOGGER.warn("Could not update tweeted status: " + re.getMessage());
+				}
 			}			
 			
-			final int tweetSeconds = config.getTweetSeconds();
 			if (nowSeconds() >= nextTweet) {
 				final String activity = activityWatcher.latestTweetableActivity();
 				try {
 					if ("".equals(activity)) {
-						LOGGER.debug("Nothing to tweet");
+						LOGGER.info("Nothing to tweet");
 					} else if (activity.equals(lastTweet)) {
-						LOGGER.debug("Nothing new to tweet (same as last one)");
+						LOGGER.info("Nothing new to tweet (same as last one)");
 					} else {
 						LOGGER.info("Activity: {}", activity);
 						lastTweet = activity;
