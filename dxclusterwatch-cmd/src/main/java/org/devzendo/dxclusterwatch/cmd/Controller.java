@@ -75,7 +75,7 @@ public class Controller {
 			final int tweetSeconds = config.getTweetSeconds();
 			final int pollSeconds = config.getPollMinutes() * 60;
 			final long nowSeconds = nowSeconds();
-			LOGGER.info("Now " + nowSeconds + " poll " + pollSeconds + " next poll " + nextPollTime + " tweet " + tweetSeconds + " next tweet " + nextTweet);
+			LOGGER.debug("Now " + nowSeconds + " poll " + pollSeconds + " next poll " + nextPollTime + " tweet " + tweetSeconds + " next tweet " + nextTweet);
 			if (nowSeconds >= nextPollTime) {
 				if (config.isFeedReadingEnabled()) {
 					try {
@@ -115,7 +115,7 @@ public class Controller {
 				}
 
 				try {
-					LOGGER.info("Giving all untweeted tweets to the activity watcher");
+					LOGGER.debug("Giving all untweeted tweets to the activity watcher");
 					// Now give all new tweets to the activity watcher
 					final List<ClusterRecord> untweetedRecords = persister.getUntweetedRecords();
 					if (untweetedRecords != null) {
