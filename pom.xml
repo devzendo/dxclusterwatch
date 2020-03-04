@@ -28,9 +28,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://bitbucket.org/devzendo/dxclusterwatch</url>
-		<connection>scm:hg:https://bitbucket.org/devzendo/dxclusterwatch</connection>
-		<developerConnection>scm:hg:https://bitbucket.org/devzendo/dxclusterwatch</developerConnection>
+		<url>https://github.com/devzendo/dxclusterwatch.git</url>
+		<connection>scm:git:https://github.com/devzendo/dxclusterwatch.git</connection>
+		<developerConnection>scm:git:git@github.com:devzendo/dxclusterwatch.git</developerConnection>
 	</scm>
 
 	<developers>
